@@ -1,0 +1,12 @@
+# ===================================
+#  Relation Behavior Config
+# ===================================
+
+blocks:
+    label: Block
+    view:
+        list: $/pensoft/courses/models/block/columns.yaml
+        toolbarButtons: create|delete
+    manage:
+        form: $/pensoft/courses/models/block/fields.yaml
+        recordsPerPage: 10 

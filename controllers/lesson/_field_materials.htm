@@ -1,0 +1,19 @@
+<?php if (!$this->formGetModel()->id): ?>
+    <p class="flash-message static warning">Please save the lesson first before adding materials.</p>
+<?php else: ?>
+
+<div class="form-buttons">
+    <a
+        href="javascript:;"
+        class="btn btn-primary oc-icon-plus"
+        data-control="popup"
+        data-handler="onRelationButtonCreate"
+        data-request-data="manage_id: '<?= $this->formGetModel()->id ?>', _relation_field: 'materials'"
+        data-size="large">
+        Add Material
+    </a>
+</div>
+
+<?= $this->relationRender('materials') ?>
+
+<?php endif; ?> 

@@ -1,0 +1,35 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+fields:
+    lesson:
+        label: Lesson
+        type: relation
+        nameFrom: name
+        emptyOption: -- Select Lesson --
+        span: full
+        required: true
+        
+    name:
+        label: Name
+        span: left
+        required: true
+        
+    slug:
+        label: Slug
+        span: right
+        preset: name
+        required: true
+        
+    type:
+        label: Material Type
+        type: dropdown
+        required: true
+        span: full
+        
+    description:
+        label: Description
+        type: textarea
+        size: large
+        span: full

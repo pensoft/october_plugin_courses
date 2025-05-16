@@ -1,0 +1,27 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+fields:
+    block:
+        label: Block
+        type: relation
+        nameFrom: name
+        emptyOption: -- Select Block --
+        required: true
+        
+    name:
+        label: Name
+        span: left
+        required: true
+        
+    slug:
+        label: Slug
+        span: right
+        preset: name
+        required: true
+        
+    materials:
+        label: Materials
+        type: partial
+        path: field_materials

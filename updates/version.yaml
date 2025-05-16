@@ -1,0 +1,12 @@
+1.0.1:
+    - Initial version of Courses plugin
+    - create_topics_table.php
+1.0.2:
+    - Create blocks table
+    - create_blocks_table.php
+1.0.3:
+    - Create lessons table
+    - create_lessons_table.php
+1.0.4:
+    - Create materials table
+    - create_materials_table.php

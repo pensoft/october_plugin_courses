@@ -1,0 +1,35 @@
+# ===================================
+#  List Column Definitions
+# ===================================
+
+columns:
+    id:
+        label: ID
+        searchable: true
+        
+    name:
+        label: Name
+        searchable: true
+        
+    slug:
+        label: Slug
+        searchable: true
+        
+    type:
+        label: Type
+        searchable: true
+        
+    lesson:
+        label: Lesson
+        relation: lesson
+        select: name
+        searchable: true
+        
+    created_at:
+        label: Created At
+        type: datetime
+        invisible: true
+        
+    updated_at:
+        label: Updated At
+        type: datetime

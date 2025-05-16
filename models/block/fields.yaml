@@ -1,0 +1,23 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+fields: 
+    topic:
+        label: Topic
+        type: relation
+        nameFrom: name
+        emptyOption: -- Select Topic --
+        required: true
+        
+    name:
+        label: Name
+        span: left
+        required: true
+        
+    slug:
+        label: Slug
+        span: right
+        preset: name
+        required: true
+        

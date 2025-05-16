@@ -1,0 +1,12 @@
+# ===================================
+#  Relation Behavior Config
+# ===================================
+
+materials:
+    label: Material
+    view:
+        list: $/pensoft/courses/models/material/columns.yaml
+        toolbarButtons: create|delete
+    manage:
+        form: $/pensoft/courses/models/material/fields.yaml
+        recordsPerPage: 10 
