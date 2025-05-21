@@ -20,7 +20,8 @@ class CreateMaterialsTable extends Migration
                 $table->string('slug')->unique();
                 $table->text('description')->nullable();
                 $table->string('type')->nullable();
-                $table->integer('sort_order');
+                $table->string('language')->nullable();
+                $table->integer('sort_order')->default(0);
                 $table->timestamps();
                 
                 // Only add foreign key if lessons table exists

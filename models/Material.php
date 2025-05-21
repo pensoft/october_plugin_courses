@@ -3,6 +3,7 @@
 use Model;
 use October\Rain\Database\Traits\Validation;
 use October\Rain\Database\Traits\Sluggable;
+use RainLab\Location\Models\Country;
 
 /**
  * Material Model
@@ -25,7 +26,7 @@ class Material extends Model
     /**
      * @var array fillable attributes are mass assignable
      */
-    protected $fillable = ['name', 'slug', 'description', 'type', 'lesson_id', 'sort_order'];
+    protected $fillable = ['name', 'slug', 'description', 'type', 'lesson_id', 'language', 'sort_order'];
 
     /**
      * @var array rules for validation
@@ -36,6 +37,7 @@ class Material extends Model
         'description' => 'nullable',
         'type' => 'required',
         'lesson_id' => 'required|exists:pensoft_courses_lessons,id',
+        'language' => 'nullable',
         'sort_order' => 'integer'
     ];
 
@@ -73,17 +75,6 @@ class Material extends Model
     protected $slugs = ['slug' => 'name'];
 
     /**
-     * Before create event to set default sort_order
-     */
-    public function beforeCreate()
-    {
-        // Set default sort_order if not specified
-        if (empty($this->sort_order)) {
-            $this->sort_order = 0;
-        }
-    }
-
-    /**
      * Material types
      */
     const TYPE_TEXT = 'text';
@@ -99,6 +90,14 @@ class Material extends Model
             self::TYPE_DOCUMENT => 'Document',
             self::TYPE_QUIZ => 'Quiz'
         ];
+    }
+
+    /**
+     * Returns options for language dropdown
+     */
+    public function getLanguageOptions()
+    {
+        return Country::isEnabled()->orderBy('is_pinned', 'desc')->orderBy('name', 'asc')->lists('name', 'code');
     }
 
     /**

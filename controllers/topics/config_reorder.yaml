@@ -1,0 +1,9 @@
+# ===================================
+#  Reorder Behavior Config
+# ===================================
+
+title: Reorder Topics
+nameFrom: name
+modelClass: Pensoft\Courses\Models\Topic
+toolbar:
+    buttons: reorder_toolbar 

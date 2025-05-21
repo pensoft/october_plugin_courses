@@ -17,8 +17,9 @@ class CreateLessonsTable extends Migration
                 $table->increments('id');
                 $table->integer('block_id')->unsigned();
                 $table->string('name')->nullable();
+                $table->string('department')->nullable();
                 $table->string('slug')->unique();
-                $table->integer('sort_order');
+                $table->integer('sort_order')->default(0);
                 $table->timestamps();
                 
                 // Only add foreign key if blocks table exists

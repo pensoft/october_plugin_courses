@@ -1,0 +1,23 @@
+<div data-control="toolbar">
+    <a
+        href="<?= Backend::url('pensoft/courses/topics/create') ?>"
+        class="btn btn-primary oc-icon-plus">
+        New Topic
+    </a>
+    
+    <button
+        class="btn btn-default oc-icon-trash-o"
+        data-request="onDelete"
+        data-request-confirm="<?= e(trans('backend::lang.list.delete_selected_confirm')) ?>"
+        data-list-checked-trigger
+        data-list-checked-request
+        data-stripe-load-indicator>
+        <?= e(trans('backend::lang.list.delete_selected')) ?>
+    </button>
+
+    <a
+        href="<?= Backend::url('pensoft/courses/topics/reorder') ?>"
+        class="btn btn-default oc-icon-list">
+        Reorder Topics
+    </a>
+</div> 

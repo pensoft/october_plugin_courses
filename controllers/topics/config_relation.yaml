@@ -1,0 +1,25 @@
+# ===================================
+#  Relation Behavior Config
+# ===================================
+
+blocks:
+    label: Blocks
+    view:
+        list: ~/plugins/pensoft/courses/models/block/columns.yaml
+        toolbarButtons: create|delete|remove
+        recordsPerPage: 10
+        showSorting: true
+        defaultSort:
+            column: sort_order
+            direction: asc
+    manage:
+        form: ~/plugins/pensoft/courses/models/block/fields.yaml
+        recordsPerPage: 10
+        showSearch: true
+    pivot:
+        form: 
+            fields:
+                sort_order:
+                    label: Sort Order
+                    type: number
+                    default: 0 

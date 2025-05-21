@@ -19,6 +19,10 @@ columns:
         label: Type
         searchable: true
         
+    language:
+        label: Language
+        searchable: true
+        
     lesson:
         label: Lesson
         relation: lesson

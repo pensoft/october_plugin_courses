@@ -3,6 +3,7 @@
 use Model;
 use October\Rain\Database\Traits\Validation;
 use October\Rain\Database\Traits\Sluggable;
+use RainLab\Location\Models\Country;
 
 /**
  * Topic Model
@@ -25,7 +26,7 @@ class Topic extends Model
     /**
      * @var array fillable attributes are mass assignable
      */
-    protected $fillable = ['name', 'slug', 'sort_order'];
+    protected $fillable = ['name', 'slug', 'language', 'sort_order'];
 
     /**
      * @var array rules for validation
@@ -33,6 +34,7 @@ class Topic extends Model
     public $rules = [
         'name' => 'required',
         'slug' => 'required|unique:pensoft_courses_topics',
+        'language' => 'nullable',
         'sort_order' => 'integer'
     ];
 
@@ -70,6 +72,14 @@ class Topic extends Model
     protected $slugs = ['slug' => 'name'];
 
     /**
+     * Returns options for language dropdown
+     */
+    public function getLanguageOptions()
+    {
+        return Country::isEnabled()->orderBy('is_pinned', 'desc')->orderBy('name', 'asc')->lists('name', 'code');
+    }
+
+    /**
      * @var array hasOne and other relations
      */
     public $hasOne = [];
@@ -86,14 +96,4 @@ class Topic extends Model
     public $attachOne = [];
     public $attachMany = [];
 
-    /**
-     * Before create event to set default sort_order
-     */
-    public function beforeCreate()
-    {
-        // Set default sort_order if not specified
-        if (empty($this->sort_order)) {
-            $this->sort_order = 0;
-        }
-    }
 }

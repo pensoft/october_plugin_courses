@@ -1,0 +1,104 @@
+<?php if (!$this->fatalError): ?>
+
+    <div class="relation-behavior list-header">
+        <h3>Lessons</h3>
+        <p>Manage lessons across all blocks in this topic</p>
+    </div>
+
+    <div id="lessons-container">
+        <?php
+        $blocksQuery = $formModel->blocks()->orderBy('sort_order')->get();
+        $lessonsQuery = \Pensoft\Courses\Models\Lesson::whereHas('block', function($query) use ($formModel) {
+            $query->where('topic_id', $formModel->id);
+        })->orderBy('sort_order')->get();
+        ?>
+
+        <!-- Add Lesson Form -->
+        <?php if (count($blocksQuery) > 0): ?>
+            <div class="form-group">
+                <div class="callout fade in callout-info no-subheader">
+                    <div class="header">
+                        <i class="icon-info"></i>
+                        <h3>Add New Lesson</h3>
+                    </div>
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <select name="block_id" class="form-control" required>
+                                    <option value="">-- Select Block --</option>
+                                    <?php foreach ($blocksQuery as $block): ?>
+                                        <option value="<?= $block->id ?>"><?= e($block->name) ?></option>
+                                    <?php endforeach ?>
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" name="lesson_name" class="form-control" placeholder="Lesson Name" required>
+                                <input type="hidden" name="topic_id" value="<?= $formModel->id ?>">
+                            </div>
+                            <div class="col-md-3">
+                                <button 
+                                    type="button" 
+                                    class="btn btn-primary btn-block" 
+                                    data-request="onAddLesson"
+                                    data-request-success="$('input[name=lesson_name]').val('')">
+                                    Add Lesson
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="callout fade in callout-warning">
+                <div class="header">
+                    <i class="icon-warning"></i>
+                    <h3>No Blocks Available</h3>
+                </div>
+                <div class="content">
+                    <p>You need to create at least one block before adding lessons. Go to the "Blocks" tab to add blocks to this topic.</p>
+                </div>
+            </div>
+        <?php endif ?>
+
+        <!-- Lessons List -->
+        <div class="list-preview list-flush">
+            <div class="control-list">
+                <table class="table data">
+                    <thead>
+                        <tr>
+                            <th><span>Name</span></th>
+                            <th><span>Block</span></th>
+                            <th><span>Order</span></th>
+                            <th class="text-right"><span>Actions</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (count($lessonsQuery)): ?>
+                            <?php foreach ($lessonsQuery as $lesson): ?>
+                                <tr>
+                                    <td><?= e($lesson->name) ?></td>
+                                    <td><?= e($lesson->block->name) ?></td>
+                                    <td><?= e($lesson->sort_order) ?></td>
+                                    <td class="text-right">
+                                        <a 
+                                            href="<?= Backend::url('pensoft/courses/lessons/update/'.$lesson->id) ?>"
+                                            class="btn btn-primary btn-sm">
+                                            <i class="icon-pencil"></i> Edit
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="4" class="text-center">No lessons for this topic yet</td>
+                            </tr>
+                        <?php endif ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<?php else: ?>
+    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
+<?php endif ?> 

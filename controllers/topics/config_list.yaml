@@ -1,0 +1,18 @@
+# ===================================
+#  List Behavior Config
+# ===================================
+
+title: Manage Topics
+list: ~/plugins/pensoft/courses/models/topic/columns.yaml
+modelClass: Pensoft\Courses\Models\Topic
+recordUrl: pensoft/courses/topics/update/:id
+recordsPerPage: 20
+showSetup: true
+defaultSort:
+    column: sort_order
+    direction: asc
+showTree: false
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt 

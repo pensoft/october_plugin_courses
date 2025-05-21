@@ -1,0 +1,34 @@
+columns:
+    id:
+        label: ID
+        searchable: true
+        invisible: true
+        
+    key:
+        label: Key
+        searchable: true
+        
+    group:
+        label: Group
+        searchable: true
+        type: text
+        sortable: true
+        
+    value_summary:
+        label: Value
+        sortable: false
+        type: partial
+        path: $/pensoft/courses/controllers/settings/_value_summary.htm
+        
+    description:
+        label: Description
+        searchable: true
+        
+    created_at:
+        label: Created
+        type: datetime
+        invisible: true
+        
+    updated_at:
+        label: Last Updated
+        type: datetime 

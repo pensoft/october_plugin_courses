@@ -28,6 +28,12 @@ fields:
         required: true
         span: full
         
+    language:
+        label: Language
+        type: dropdown
+        emptyOption: -- Select Language --
+        span: full
+        
     description:
         label: Description
         type: textarea

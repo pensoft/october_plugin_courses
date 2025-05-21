@@ -15,6 +15,10 @@ fields:
         span: left
         required: true
         
+    level:
+        label: Level
+        span: right
+        
     slug:
         label: Slug
         span: right

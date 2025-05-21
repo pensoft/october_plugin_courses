@@ -16,8 +16,9 @@ class CreateTopicsTable extends Migration
                 $table->engine = 'InnoDB';
                 $table->increments('id');
                 $table->string('name')->nullable();
+                $table->string('language')->nullable();
                 $table->string('slug')->unique();
-                $table->integer('sort_order');
+                $table->integer('sort_order')->default(0);
                 $table->timestamps();
             });
         }

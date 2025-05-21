@@ -10,3 +10,6 @@
 1.0.4:
     - Create materials table
     - create_materials_table.php
+1.0.5:
+    - Create settings table
+    - create_settings_table.php

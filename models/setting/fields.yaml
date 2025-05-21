@@ -1,0 +1,43 @@
+fields:
+    key:
+        label: Key
+        span: left
+        required: true
+        comment: Unique identifier for this setting
+        
+    group:
+        label: Group
+        span: right
+        comment: Category for organizing related settings
+        
+tabs:
+    fields:
+        value:
+            tab: Value
+            label: Value
+            type: codeeditor
+            size: huge
+            language: json
+            comment: Setting value in JSON format
+            
+        value_simple:
+            tab: Value
+            label: Simple Value
+            trigger:
+                action: show
+                field: is_simple
+                condition: checked
+            comment: Use this for simple text or numeric values
+            
+        is_simple:
+            tab: Value
+            label: Simple Value Type
+            type: checkbox
+            comment: Check this if the setting is a simple text or number instead of complex JSON
+            
+        description:
+            tab: Description
+            label: Description
+            type: textarea
+            size: small
+            comment: Detailed explanation of what this setting does 

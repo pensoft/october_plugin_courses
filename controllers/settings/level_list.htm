@@ -1,0 +1,50 @@
+<?php if(count($levels)): ?>
+    <div class="form-group">
+        <div class="card">
+            <div class="card-header">
+                <h3>Available Levels</h3>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($levels as $code => $level): ?>
+                        <tr>
+                            <td><?= e($code) ?></td>
+                            <td><?= e($level['name']) ?></td>
+                            <td><?= e($level['description']) ?></td>
+                            <td>
+                                <button 
+                                    class="btn btn-danger btn-sm"
+                                    data-request="onRemoveLevel"
+                                    data-request-data="{ code: '<?= e($code) ?>' }"
+                                    data-request-confirm="Are you sure you want to remove this level?"
+                                    data-request-update="{'#level-list': true}">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+<?php else: ?>
+    <div class="form-group">
+        <div class="callout callout-warning">
+            <div class="header">
+                <i class="icon-info"></i>
+                <h3>No Levels Found</h3>
+            </div>
+            <div class="content">
+                <p>No course levels have been added yet. Use the form above to add your first level.</p>
+            </div>
+        </div>
+    </div>
+<?php endif; ?> 

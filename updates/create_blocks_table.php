@@ -17,8 +17,9 @@ class CreateBlocksTable extends Migration
                 $table->increments('id');
                 $table->integer('topic_id')->unsigned();
                 $table->string('name')->nullable();
+                $table->string('level')->nullable();
                 $table->string('slug')->unique();
-                $table->integer('sort_order');
+                $table->integer('sort_order')->default(0);
                 $table->timestamps();
                 
                 // Only add foreign key if topics table exists

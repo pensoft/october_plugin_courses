@@ -11,6 +11,10 @@ columns:
         label: Name
         searchable: true
         
+    language:
+        label: Language
+        searchable: true
+        
     slug:
         label: Slug
         searchable: true

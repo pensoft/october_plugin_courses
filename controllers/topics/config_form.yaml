@@ -1,0 +1,14 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+name: Topic
+form: ~/plugins/pensoft/courses/models/topic/fields.yaml
+modelClass: Pensoft\Courses\Models\Topic
+defaultRedirect: pensoft/courses/topics
+create:
+    redirect: pensoft/courses/topics/update/:id
+    redirectClose: pensoft/courses/topics
+update:
+    redirect: pensoft/courses/topics
+    redirectClose: pensoft/courses/topics 

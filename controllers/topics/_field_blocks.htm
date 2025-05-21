@@ -1,0 +1,11 @@
+<?php if (!$this->fatalError): ?>
+    <div class="relation-behavior list-header">
+        <h3>Course Blocks</h3>
+        <p>A topic can have multiple blocks. Use the buttons below to manage blocks for this topic.</p>
+    </div>
+
+    <?= $this->relationRender('blocks') ?>
+
+<?php else: ?>
+    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
+<?php endif ?> 

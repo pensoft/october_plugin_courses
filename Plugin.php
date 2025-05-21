@@ -2,6 +2,7 @@
 
 use Backend;
 use System\Classes\PluginBase;
+use Route;
 
 /**
  * Courses Plugin Information File
@@ -40,7 +41,22 @@ class Plugin extends PluginBase
      */
     public function boot()
     {
+        // Register API routes
+        Route::group(['prefix' => 'api/pensoft/courses'], function() {
+            Route::get('materials', 'Pensoft\Courses\Controllers\ApiController@getMaterials');
+        });
+    }
 
+    /**
+     * Plugin dependencies
+     *
+     * @return array
+     */
+    public function pluginDependencies()
+    {
+        return [
+            'RainLab.Location'
+        ];
     }
 
     /**
@@ -73,6 +89,10 @@ class Plugin extends PluginBase
                 'tab' => 'Courses',
                 'label' => 'Manage course lessons'
             ],
+            'pensoft.courses.access_settings' => [
+                'tab' => 'Courses',
+                'label' => 'Manage course settings'
+            ],
         ];
     }
 
@@ -86,28 +106,42 @@ class Plugin extends PluginBase
         return [
             'courses' => [
                 'label'       => 'Courses',
-                'url'         => Backend::url('pensoft/courses/topic'),
+                'url'         => Backend::url('pensoft/courses/topics'),
                 'icon'        => 'icon-graduation-cap',
                 'permissions' => ['pensoft.courses.*'],
                 'order'       => 500,
                 'sideMenu' => [
                     'topics' => [
-                        'label'       => 'Topics',
-                        'url'         => Backend::url('pensoft/courses/topic'),
-                        'icon'        => 'icon-list',
+                        'label'       => 'Course Management',
+                        'url'         => Backend::url('pensoft/courses/topics'),
+                        'icon'        => 'icon-sitemap',
                         'permissions' => ['pensoft.courses.access_topics'],
                     ],
-                    'blocks' => [
-                        'label'       => 'Blocks',
-                        'url'         => Backend::url('pensoft/courses/block'),
-                        'icon'        => 'icon-cubes',
-                        'permissions' => ['pensoft.courses.access_blocks'],
-                    ],
-                    'lessons' => [
-                        'label'       => 'Lessons',
-                        'url'         => Backend::url('pensoft/courses/lesson'),
-                        'icon'        => 'icon-book',
-                        'permissions' => ['pensoft.courses.access_lessons'],
+                    'settings' => [
+                        'label'       => 'Settings',
+                        'url'         => Backend::url('pensoft/courses/settings'),
+                        'icon'        => 'icon-cog',
+                        'permissions' => ['pensoft.courses.access_settings'],
+                        'sideMenu' => [
+                            'general' => [
+                                'label'       => 'Overview',
+                                'url'         => Backend::url('pensoft/courses/settings'),
+                                'icon'        => 'icon-dashboard',
+                                'permissions' => ['pensoft.courses.access_settings'],
+                            ],
+                            'levels' => [
+                                'label'       => 'Levels',
+                                'url'         => Backend::url('pensoft/courses/settings/levels'),
+                                'icon'        => 'icon-signal',
+                                'permissions' => ['pensoft.courses.access_settings'],
+                            ],
+                            'materialtypes' => [
+                                'label'       => 'Material Types',
+                                'url'         => Backend::url('pensoft/courses/settings/materialtypes'),
+                                'icon'        => 'icon-file-text-o',
+                                'permissions' => ['pensoft.courses.access_settings'],
+                            ],
+                        ]
                     ]
                 ]
             ],

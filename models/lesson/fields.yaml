@@ -15,6 +15,10 @@ fields:
         span: left
         required: true
         
+    department:
+        label: Department
+        span: right
+        
     slug:
         label: Slug
         span: right

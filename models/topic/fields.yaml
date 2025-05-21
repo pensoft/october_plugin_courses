@@ -2,14 +2,42 @@
 #  Form Field Definitions
 # ===================================
 
-fields:
-    name:
-        label: Name
-        span: left
-        required: true
-        
-    slug:
-        label: Slug
-        span: right
-        preset: name
-        required: true
+tabs:
+    fields:
+        name:
+            label: Name
+            span: left
+            required: true
+            tab: Details
+            
+        language:
+            label: Language
+            span: right
+            type: dropdown
+            emptyOption: -- Select Language --
+            tab: Details
+            
+        slug:
+            label: Slug
+            span: right
+            preset: name
+            required: true
+            tab: Details
+            
+        blocks:
+            label: Course Blocks
+            type: partial
+            path: $/pensoft/courses/controllers/topics/_field_blocks.htm
+            tab: Blocks
+            
+        lessons:
+            label: Lessons
+            type: partial
+            path: $/pensoft/courses/controllers/topics/_field_lessons.htm
+            tab: Lessons
+            
+        materials:
+            label: Learning Materials
+            type: partial
+            path: $/pensoft/courses/controllers/topics/_field_materials.htm
+            tab: Materials

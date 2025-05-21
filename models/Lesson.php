@@ -90,15 +90,4 @@ class Lesson extends Model
     public $morphMany = [];
     public $attachOne = [];
     public $attachMany = [];
-
-    /**
-     * Before create event to set default sort_order
-     */
-    public function beforeCreate()
-    {
-        // Set default sort_order if not specified
-        if (empty($this->sort_order)) {
-            $this->sort_order = 0;
-        }
-    }
 }
