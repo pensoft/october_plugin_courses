@@ -1,0 +1,4 @@
+title: Reorder Material Types
+modelClass: Pensoft\Courses\Models\Setting
+toolbar:
+    buttons: reorder_toolbar_materialtypes 

@@ -6,3 +6,31 @@ columns:
     id:
         label: ID
         searchable: true
+    
+    name:
+        label: Name
+        searchable: true
+        clickable: true
+    
+    slug:
+        label: Slug
+        searchable: true
+    
+    block:
+        label: Block
+        relation: block
+        select: name
+        searchable: true
+    
+    sort_order:
+        label: Sort Order
+        type: number
+    
+    created_at:
+        label: Created
+        type: datetime
+        invisible: true
+    
+    updated_at:
+        label: Updated At
+        type: datetime

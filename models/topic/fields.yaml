@@ -23,7 +23,15 @@ tabs:
             preset: name
             required: true
             tab: Details
+
+        institution:
+            label: Institution
+            span: right
+            type: dropdown
+            emptyOption: -- Select Institution --
+            tab: Details
             
+
         blocks:
             label: Course Blocks
             type: partial

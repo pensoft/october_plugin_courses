@@ -1,0 +1,4 @@
+title: Reorder Blocks
+modelClass: Pensoft\Courses\Models\Block
+toolbar:
+    buttons: reorder_toolbar 

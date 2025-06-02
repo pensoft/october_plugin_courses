@@ -2,17 +2,21 @@
 #  List Behavior Config
 # ===================================
 
-title: Manage Topics
-list: ~/plugins/pensoft/courses/models/topic/columns.yaml
+list: $/pensoft/courses/models/topic/columns.yaml
 modelClass: Pensoft\Courses\Models\Topic
-recordUrl: pensoft/courses/topics/update/:id
+customViewPath: $/pensoft/courses/controllers/topics
+title: Manage Topics
+
+noRecordsMessage: backend::lang.list.no_records
+
 recordsPerPage: 20
+
 showSetup: true
-defaultSort:
-    column: sort_order
-    direction: asc
-showTree: false
+showCheckboxes: true
+
 toolbar:
     buttons: list_toolbar
     search:
-        prompt: backend::lang.list.search_prompt 
+        prompt: backend::lang.list.search_prompt
+
+recordUrl: pensoft/courses/topics/update/:id 

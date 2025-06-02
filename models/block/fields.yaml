@@ -9,6 +9,7 @@ fields:
         nameFrom: name
         emptyOption: -- Select Topic --
         required: true
+        default: '{{ defaultTopicId|default }}'
         
     name:
         label: Name
@@ -18,6 +19,9 @@ fields:
     level:
         label: Level
         span: right
+        type: dropdown
+        options: getLevelOptions
+        emptyOption: -- Select Level --
         
     slug:
         label: Slug

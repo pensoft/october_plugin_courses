@@ -10,6 +10,7 @@ fields:
         emptyOption: -- Select Lesson --
         span: full
         required: true
+        context: [create, update]
         
     name:
         label: Name
@@ -34,8 +35,82 @@ fields:
         emptyOption: -- Select Language --
         span: full
         
+    prefix:
+        label: Prefix
+        type: text
+        span: left
+        comment: A prefix for this material
+        
+    duration:
+        label: Duration
+        type: text
+        span: right
+        comment: Duration of the material (e.g., "30 minutes", "2 hours")
+        
     description:
         label: Description
         type: textarea
         size: large
+        span: full
+        
+    keywords:
+        label: Keywords
+        type: taglist
+        span: full
+        comment: Keywords for search functionality (press enter to add each keyword)
+    
+    # YouTube URL field - only shown for video type
+    youtube_url:
+        label: YouTube URL
+        type: text
+        span: full
+        comment: YouTube video URL
+        trigger:
+            action: show
+            field: type
+            condition: value[video]
+            
+    # Video file upload - only shown for video type  
+    video_file:
+        label: Video File
+        type: fileupload
+        mode: file
+        fileTypes: mp4,mov,avi,webm,mkv
+        span: full
+        comment: Upload a video file
+        trigger:
+            action: show
+            field: type
+            condition: value[video]
+    
+    # Quiz field - only shown for quiz type
+    quiz:
+        label: Quiz Content
+        type: richeditor
+        size: large
+        span: full
+        comment: Quiz content and questions
+        trigger:
+            action: show
+            field: type
+            condition: value[quiz]
+    
+    # Document file upload - shown for all types except video and quiz
+    document_file:
+        label: Document/File
+        type: fileupload
+        mode: file
+        fileTypes: pdf,doc,docx,ppt,pptx,xls,xlsx,txt,zip,rar
+        span: full
+        comment: Upload a document or file
+        trigger:
+            action: hide
+            field: type
+            condition: value[video] value[quiz]
+        
+    cover:
+        label: Cover Image
+        type: fileupload
+        mode: image
+        fileTypes: jpg,jpeg,png,gif,webp
         span: full

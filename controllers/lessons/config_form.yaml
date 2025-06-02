@@ -1,0 +1,16 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+name: Lesson
+form: $/pensoft/courses/models/lesson/fields.yaml
+modelClass: Pensoft\Courses\Models\Lesson
+defaultRedirect: pensoft/courses/lessons
+
+create:
+    redirect: pensoft/courses/lessons/update/:id
+    redirectClose: pensoft/courses/lessons
+
+update:
+    redirect: pensoft/courses/lessons
+    redirectClose: pensoft/courses/lessons 

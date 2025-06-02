@@ -1,0 +1,12 @@
+<?php
+// This partial is used to display the materials relation manager
+
+$relationWidget = $this->relationRender('materials');
+
+if (!$relationWidget) {
+    echo "The relation widget failed to load. Please check relation configuration.";
+}
+else {
+    echo $relationWidget;
+}
+?> 

@@ -2,9 +2,7 @@
 
 use Model;
 use October\Rain\Database\Traits\Validation;
-use Cache;
-use RainLab\Location\Models\Country;
-use Pensoft\Partners\Models\Partners;
+use October\Rain\Database\Traits\Sortable;
 
 /**
  * Setting Model
@@ -12,6 +10,7 @@ use Pensoft\Partners\Models\Partners;
 class Setting extends Model
 {
     use Validation;
+    use Sortable;
 
     /**
      * @var string table associated with the model
@@ -26,27 +25,30 @@ class Setting extends Model
     /**
      * @var array fillable attributes are mass assignable
      */
-    protected $fillable = ['key', 'value', 'group', 'description'];
+    protected $fillable = ['type', 'value', 'label', 'sort_order', 'is_active'];
 
     /**
      * @var array rules for validation
      */
     public $rules = [
-        'key' => 'required|unique:pensoft_courses_settings',
-        'group' => 'nullable',
-        'value' => 'nullable',
-        'description' => 'nullable'
+        'type' => 'required|in:block_level,material_type',
+        'value' => 'required|unique:pensoft_courses_settings,value,NULL,id,type,{{type}}',
+        'label' => 'required',
+        'sort_order' => 'integer',
+        'is_active' => 'boolean'
     ];
 
     /**
      * @var array Attributes to be cast to native types
      */
-    protected $casts = [];
+    protected $casts = [
+        'is_active' => 'boolean'
+    ];
 
     /**
      * @var array jsonable attribute names that are json encoded and decoded from the database
      */
-    protected $jsonable = ['value'];
+    protected $jsonable = [];
 
     /**
      * @var array appends attributes to the API representation of the model (ex. toArray())
@@ -67,211 +69,97 @@ class Setting extends Model
     ];
 
     /**
-     * Gets a setting value by key
-     *
-     * @param string $key
-     * @param mixed $default
-     * @return mixed
+     * Boot the model
      */
-    public static function get($key, $default = null)
+    public static function boot()
     {
-        $cacheKey = 'pensoft_courses_settings_' . $key;
-
-        $value = Cache::remember($cacheKey, 1440, function() use ($key, $default) {
-            $setting = self::where('key', $key)->first();
-            return $setting ? $setting->value : $default;
+        parent::boot();
+        
+        static::creating(function ($model) {
+            if (empty($model->sort_order)) {
+                $maxOrder = static::where('type', $model->type)->max('sort_order') ?: 0;
+                $model->sort_order = $maxOrder + 1;
+            }
         });
-
-        return $value;
     }
 
     /**
-     * Sets a setting value by key
-     *
-     * @param string $key
-     * @param mixed $value
-     * @param string $group
-     * @param string $description
-     * @return void
+     * Setting types
      */
-    public static function set($key, $value, $group = null, $description = null)
-    {
-        $setting = self::firstOrNew(['key' => $key]);
-        $setting->value = $value;
-        
-        if ($group) {
-            $setting->group = $group;
-        }
-        
-        if ($description) {
-            $setting->description = $description;
-        }
-        
-        $setting->save();
-        
-        // Clear cache
-        Cache::forget('pensoft_courses_settings_' . $key);
-
-        return $setting;
-    }
+    const TYPE_BLOCK_LEVEL = 'block_level';
+    const TYPE_MATERIAL_TYPE = 'material_type';
 
     /**
-     * Returns language options for dropdowns from RainLab.Location countries
+     * Get type options for dropdown
      */
-    public static function getLanguageOptions()
+    public function getTypeOptions()
     {
-        return Country::isEnabled()
-            ->whereNotNull('country_language')
-            ->orderBy('is_pinned', 'desc')
-            ->orderBy('name', 'asc')
-            ->lists('country_language', 'code');
-    }
-    
-    /**
-     * Returns levels registered in the system
-     * 
-     * @return array
-     */
-    public static function getLevels()
-    {
-        return self::get('levels', []);
-    }
-    
-    /**
-     * Adds a new level
-     * 
-     * @param string $code Level code
-     * @param string $name Level name
-     * @param string $description Level description
-     * @return array Updated levels
-     */
-    public static function addLevel($code, $name, $description = '')
-    {
-        $levels = self::getLevels();
-        $levels[$code] = [
-            'name' => $name,
-            'description' => $description
+        return [
+            self::TYPE_BLOCK_LEVEL => 'Block Level',
+            self::TYPE_MATERIAL_TYPE => 'Material Type'
         ];
-        
-        self::set('levels', $levels, 'general', 'Available levels');
-        
-        return $levels;
     }
-    
+
     /**
-     * Removes a level
-     * 
-     * @param string $code Level code
-     * @return array Updated levels
+     * Get block level options
      */
-    public static function removeLevel($code)
+    public static function getBlockLevelOptions()
     {
-        $levels = self::getLevels();
-        
-        if (isset($levels[$code])) {
-            unset($levels[$code]);
-            self::set('levels', $levels, 'general', 'Available levels');
-        }
-        
-        return $levels;
+        return self::where('type', self::TYPE_BLOCK_LEVEL)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('label')
+            ->pluck('label', 'value')
+            ->toArray();
     }
-    
+
     /**
-     * Returns level options for dropdowns
-     */
-    public static function getLevelOptions()
-    {
-        $levels = self::getLevels();
-        $options = [];
-        
-        foreach ($levels as $code => $level) {
-            $options[$code] = $level['name'];
-        }
-        
-        return $options;
-    }
-    
-    /**
-     * Returns departments from Partners plugin
-     * 
-     * @return array
-     */
-    public static function getDepartmentOptions()
-    {
-        return Partners::where('type', 1)->lists('title', 'id');
-    }
-    
-    /**
-     * Returns material types registered in the system
-     * 
-     * @return array
-     */
-    public static function getMaterialTypes()
-    {
-        return self::get('material_types', []);
-    }
-    
-    /**
-     * Adds a new material type
-     * 
-     * @param string $code Type code
-     * @param string $name Type name
-     * @param string $description Type description
-     * @return array Updated material types
-     */
-    public static function addMaterialType($code, $name, $description = '')
-    {
-        $types = self::getMaterialTypes();
-        $types[$code] = [
-            'name' => $name,
-            'description' => $description
-        ];
-        
-        self::set('material_types', $types, 'materials', 'Available material types');
-        
-        return $types;
-    }
-    
-    /**
-     * Removes a material type
-     * 
-     * @param string $code Type code
-     * @return array Updated material types
-     */
-    public static function removeMaterialType($code)
-    {
-        $types = self::getMaterialTypes();
-        
-        if (isset($types[$code])) {
-            unset($types[$code]);
-            self::set('material_types', $types, 'materials', 'Available material types');
-        }
-        
-        return $types;
-    }
-    
-    /**
-     * Returns material type options for dropdowns
+     * Get material type options
      */
     public static function getMaterialTypeOptions()
     {
-        $types = self::getMaterialTypes();
-        $options = [];
-        
-        foreach ($types as $code => $type) {
-            $options[$code] = $type['name'];
-        }
-        
-        return $options;
+        return self::where('type', self::TYPE_MATERIAL_TYPE)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('label')
+            ->pluck('label', 'value')
+            ->toArray();
     }
 
     /**
-     * Returns dropdown options for groups
-     * 
-     * @return array
+     * Scope for block levels
      */
-    public static function getGroupOptions()
+    public function scopeBlockLevels($query)
     {
-        return self::distinct()->orderBy('group')->pluck('group', 'group')->toArray();
+        return $query->where('type', self::TYPE_BLOCK_LEVEL);
     }
+
+    /**
+     * Scope for material types
+     */
+    public function scopeMaterialTypes($query)
+    {
+        return $query->where('type', self::TYPE_MATERIAL_TYPE);
+    }
+
+    /**
+     * Scope for active records
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * @var array hasOne and other relations
+     */
+    public $hasOne = [];
+    public $hasMany = [];
+    public $belongsTo = [];
+    public $belongsToMany = [];
+    public $morphTo = [];
+    public $morphOne = [];
+    public $morphMany = [];
+    public $attachOne = [];
+    public $attachMany = [];
 } 

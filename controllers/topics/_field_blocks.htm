@@ -1,11 +1,36 @@
-<?php if (!$this->fatalError): ?>
-    <div class="relation-behavior list-header">
-        <h3>Course Blocks</h3>
-        <p>A topic can have multiple blocks. Use the buttons below to manage blocks for this topic.</p>
-    </div>
-
-    <?= $this->relationRender('blocks') ?>
-
+<!-- <?php if(!$this->formGetModel()->id): ?>
+    <p class="flash-message static warning">Please save the topic first before adding blocks.</p>
 <?php else: ?>
-    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
-<?php endif ?> 
+    <?php if(!$this->formGetModel()->blocks->count()): ?>
+        <p class="flash-message static warning">No blocks found. Please create blocks for this topic.</p>
+    <?php else: ?>
+        <div class="list-preview">
+            <table class="table data">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Lessons Count</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($this->formGetModel()->blocks as $block): ?>
+                    <tr>
+                        <td><?= $block->id ?></td>
+                        <td><a href="<?= Backend::url('pensoft/courses/blocks/update/'.$block->id) ?>"><?= $block->name ?></a></td>
+                        <td><?= $block->lessons->count() ?></td>
+                        <td><?= $block->created_at->format('Y-m-d H:i:s') ?></td>
+                        <td><?= $block->updated_at->format('Y-m-d H:i:s') ?></td>
+                    </tr>
+                    <?php endforeach ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif ?>
+    
+    <div class="form-buttons">
+        <a href="<?= Backend::url('pensoft/courses/blocks/create') ?>?topic_id=<?= $this->formGetModel()->id ?>" class="btn btn-primary oc-icon-plus">Add Block</a>
+    </div>
+<?php endif ?>  -->

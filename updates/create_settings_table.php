@@ -15,11 +15,15 @@ class CreateSettingsTable extends Migration
             Schema::create('pensoft_courses_settings', function(Blueprint $table) {
                 $table->engine = 'InnoDB';
                 $table->increments('id');
-                $table->string('key')->unique();
-                $table->text('value')->nullable();
-                $table->string('group')->nullable();
-                $table->text('description')->nullable();
+                $table->enum('type', ['block_level', 'material_type']);
+                $table->string('value')->index();
+                $table->string('label');
+                $table->integer('sort_order')->default(0);
+                $table->boolean('is_active')->default(true);
                 $table->timestamps();
+                
+                // Unique constraint for value within the same type
+                $table->unique(['type', 'value']);
             });
         }
     }

@@ -1,0 +1,4 @@
+title: Reorder Lessons
+modelClass: Pensoft\Courses\Models\Lesson
+toolbar:
+    buttons: reorder_toolbar 

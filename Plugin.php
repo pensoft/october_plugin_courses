@@ -41,10 +41,6 @@ class Plugin extends PluginBase
      */
     public function boot()
     {
-        // Register API routes
-        Route::group(['prefix' => 'api/pensoft/courses'], function() {
-            Route::get('materials', 'Pensoft\Courses\Controllers\ApiController@getMaterials');
-        });
     }
 
     /**
@@ -55,7 +51,8 @@ class Plugin extends PluginBase
     public function pluginDependencies()
     {
         return [
-            'RainLab.Location'
+            'RainLab.Location',
+            'Pensoft.Partners'
         ];
     }
 
@@ -66,7 +63,10 @@ class Plugin extends PluginBase
      */
     public function registerComponents()
     {
-        return [];
+        return [
+            'Pensoft\Courses\Components\CoursesResults' => 'coursesResults',
+            'Pensoft\Courses\Components\TopicDetails' => 'topicDetails',
+        ];
     }
 
     /**
@@ -88,6 +88,10 @@ class Plugin extends PluginBase
             'pensoft.courses.access_lessons' => [
                 'tab' => 'Courses',
                 'label' => 'Manage course lessons'
+            ],
+            'pensoft.courses.access_materials' => [
+                'tab' => 'Courses',
+                'label' => 'Manage course materials'
             ],
             'pensoft.courses.access_settings' => [
                 'tab' => 'Courses',
@@ -112,10 +116,22 @@ class Plugin extends PluginBase
                 'order'       => 500,
                 'sideMenu' => [
                     'topics' => [
-                        'label'       => 'Course Management',
+                        'label'       => 'Topics',
                         'url'         => Backend::url('pensoft/courses/topics'),
                         'icon'        => 'icon-sitemap',
                         'permissions' => ['pensoft.courses.access_topics'],
+                    ],
+                    'blocks' => [
+                        'label'       => 'Blocks',
+                        'url'         => Backend::url('pensoft/courses/blocks'),
+                        'icon'        => 'icon-th-large',
+                        'permissions' => ['pensoft.courses.access_blocks'],
+                    ],
+                    'lessons' => [
+                        'label'       => 'Lessons & Materials',
+                        'url'         => Backend::url('pensoft/courses/lessons'),
+                        'icon'        => 'icon-book',
+                        'permissions' => ['pensoft.courses.access_lessons'],
                     ],
                     'settings' => [
                         'label'       => 'Settings',

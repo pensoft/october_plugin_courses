@@ -11,6 +11,10 @@ columns:
         label: Name
         searchable: true
         
+    prefix:
+        label: Prefix
+        searchable: true
+        
     slug:
         label: Slug
         searchable: true
@@ -19,8 +23,8 @@ columns:
         label: Type
         searchable: true
         
-    language:
-        label: Language
+    duration:
+        label: Duration
         searchable: true
         
     lesson:
@@ -29,8 +33,12 @@ columns:
         select: name
         searchable: true
         
+    sort_order:
+        label: Sort Order
+        type: number
+        
     created_at:
-        label: Created At
+        label: Created
         type: datetime
         invisible: true
         

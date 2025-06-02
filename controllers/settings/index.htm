@@ -1,48 +1,77 @@
-<div class="scoreboard">
-    <div data-control="toolbar">
-        <div class="scoreboard-item title-value">
-            <h4>Languages</h4>
-            <p><?= $languages ?> languages available</p>
-            <p class="description">
-                <a href="<?= Backend::url('rainlab/location/countries') ?>">Manage in RainLab.Location</a>
-            </p>
-        </div>
-        <div class="scoreboard-item title-value">
-            <h4>Levels</h4>
-            <p><?= count($levels) ?> levels defined</p>
-            <p class="description">
-                <a href="<?= Backend::url('pensoft/courses/settings/levels') ?>">Manage levels</a>
-            </p>
-        </div>
-        <div class="scoreboard-item title-value">
-            <h4>Departments</h4>
-            <p><?= count($departments) ?> departments available</p>
-            <p class="description">
-                <a href="<?= Backend::url('pensoft/partners/partners') ?>">Manage departments in Partners plugin</a>
-            </p>
-        </div>
-        <div class="scoreboard-item title-value">
-            <h4>Material Types</h4>
-            <p><?= count($materialTypes) ?> material types defined</p>
-            <p class="description">
-                <a href="<?= Backend::url('pensoft/courses/settings/materialtypes') ?>">Manage material types</a>
-            </p>
-        </div>
-    </div>
-</div>
+<?= Form::open(['class' => 'layout']) ?>
 
-<div class="callout callout-info">
-    <div class="header">
-        <i class="icon-info"></i>
-        <h3>Course Settings</h3>
+    <div class="layout-row">
+        <div class="layout-cell">
+            <div class="control-toolbar">
+                <div class="toolbar-item toolbar-primary">
+                    <div class="btn-group">
+                        <a
+                            href="<?= Backend::url('pensoft/courses/settings/levels') ?>"
+                            class="btn btn-primary">
+                            <i class="icon-signal"></i>
+                            Manage Block Levels
+                        </a>
+                        <a
+                            href="<?= Backend::url('pensoft/courses/settings/materialtypes') ?>"
+                            class="btn btn-primary">
+                            <i class="icon-file-text-o"></i>
+                            Manage Material Types
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-preview">
+                <div class="form-group">
+                    <h3>Settings Overview</h3>
+                    <p class="help-block">
+                        Manage the options that will be available in dropdown menus for Block levels and Material types.
+                    </p>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="report-widget">
+                            <div class="report-widget-title">
+                                <h3><?= $blockLevelsCount ?></h3>
+                                <p>Block Levels</p>
+                            </div>
+                            <div class="report-widget-description">
+                                <p>
+                                    <a href="<?= Backend::url('pensoft/courses/settings/levels') ?>">Manage levels →</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="report-widget">
+                            <div class="report-widget-title">
+                                <h3><?= $materialTypesCount ?></h3>
+                                <p>Material Types</p>
+                            </div>
+                            <div class="report-widget-description">
+                                <p>
+                                    <a href="<?= Backend::url('pensoft/courses/settings/materialtypes') ?>">Manage types →</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="report-widget">
+                            <div class="report-widget-title">
+                                <h3><?= $totalSettingsCount ?></h3>
+                                <p>Total Settings</p>
+                            </div>
+                            <div class="report-widget-description">
+                                <p>Active configuration options</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="content">
-        <p>Manage all global settings for the courses system from this section.</p>
-        <ul>
-            <li><strong>Languages</strong>: Languages are managed through RainLab.Location plugin's country settings</li>
-            <li><strong>Levels</strong>: Configure course difficulty levels</li>
-            <li><strong>Departments</strong>: Departments are imported from Partners plugin (type 1)</li>
-            <li><strong>Material Types</strong>: Define different types of materials that can be used in courses</li>
-        </ul>
-    </div>
-</div> 
+
+<?= Form::close() ?> 

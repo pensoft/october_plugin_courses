@@ -1,0 +1,22 @@
+# ===================================
+#  List Behavior Config
+# ===================================
+
+list: $/pensoft/courses/models/block/columns.yaml
+modelClass: Pensoft\Courses\Models\Block
+customViewPath: $/pensoft/courses/controllers/blocks
+title: Manage Blocks
+
+noRecordsMessage: backend::lang.list.no_records
+
+recordsPerPage: 20
+
+showSetup: true
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt
+
+recordUrl: pensoft/courses/blocks/update/:id 

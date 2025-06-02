@@ -16,7 +16,7 @@ fields:
         required: true
         
     department:
-        label: Department
+        label: Institution
         span: right
         
     slug:
@@ -25,7 +25,10 @@ fields:
         preset: name
         required: true
         
-    materials:
-        label: Materials
-        type: partial
-        path: field_materials
+tabs:
+    fields:
+        materials:
+            label: Materials
+            tab: Materials
+            type: partial
+            path: $/pensoft/courses/controllers/lessons/_relation_materials.htm

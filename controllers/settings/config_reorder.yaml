@@ -1,0 +1,4 @@
+title: Reorder Settings
+modelClass: Pensoft\Courses\Models\Setting
+toolbar:
+    buttons: reorder_toolbar 

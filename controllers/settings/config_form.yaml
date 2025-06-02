@@ -2,81 +2,28 @@
 #  Form Behavior Config
 # ===================================
 
-# Form Title
-name: Course Settings
-description: Configure global settings for courses
-
-# Model Class name
+name: Setting
+form: $/pensoft/courses/models/setting/fields.yaml
 modelClass: Pensoft\Courses\Models\Setting
-
-# Default redirect location
 defaultRedirect: pensoft/courses/settings
 
-# Model Form Field Definition
-fields:
-    # General Tab
-    general_section:
-        label: General Settings
-        type: section
-        comment: Configure general settings for courses
-      
-    default_language:
-        label: Default Language
-        type: dropdown
-        span: left
-        options: languageOptions
-        comment: Default language for new courses
-    
-    # Departments Tab
-    departments_section:
-        label: Department Topics
-        type: section
-        comment: Configure department topics for courses
-        
-    department_topics:
-        label: Department Topics
-        type: repeater
-        prompt: Add a department topic
-        form:
-            fields:
-                name:
-                    label: Department Name
-                    span: left
-                code:
-                    label: Department Code
-                    span: right
-                description:
-                    label: Description
-                    type: textarea
-                    size: small
-                
-    # Materials Tab
-    materials_section:
-        label: Material Types
-        type: section
-        comment: Configure available material types
-        
-    material_types:
-        label: Material Types
-        type: repeater
-        prompt: Add a material type
-        form:
-            fields:
-                name:
-                    label: Type Name
-                    span: left
-                code:
-                    label: Type Code
-                    span: right
-                description:
-                    label: Description
-                    type: textarea
-                    size: small
+create:
+    redirect: pensoft/courses/settings/update/:id
+    redirectClose: '{{ backUrl|default("pensoft/courses/settings") }}'
 
-# Form Buttons
-buttons:
-    save:
-        label: Save Settings
-        class: btn-primary
-        data-request: onSave
-        data-hotkey: ctrl+s 
+createLevel:
+    title: Create Block Level
+    redirect: pensoft/courses/settings/update/:id
+    redirectClose: pensoft/courses/settings/levels
+
+createMaterialType:
+    title: Create Material Type
+    redirect: pensoft/courses/settings/update/:id
+    redirectClose: pensoft/courses/settings/materialtypes
+
+update:
+    redirect: '{{ backUrl|default("pensoft/courses/settings") }}'
+    redirectClose: '{{ backUrl|default("pensoft/courses/settings") }}'
+
+preview:
+    redirect: '{{ backUrl|default("pensoft/courses/settings") }}' 

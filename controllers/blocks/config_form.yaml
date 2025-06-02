@@ -1,0 +1,16 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+name: Block
+form: $/pensoft/courses/models/block/fields.yaml
+modelClass: Pensoft\Courses\Models\Block
+defaultRedirect: pensoft/courses/blocks
+
+create:
+    redirect: pensoft/courses/blocks/update/:id
+    redirectClose: pensoft/courses/blocks
+
+update:
+    redirect: pensoft/courses/blocks
+    redirectClose: pensoft/courses/blocks 

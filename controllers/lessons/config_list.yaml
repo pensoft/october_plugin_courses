@@ -1,0 +1,22 @@
+# ===================================
+#  List Behavior Config
+# ===================================
+
+list: $/pensoft/courses/models/lesson/columns.yaml
+modelClass: Pensoft\Courses\Models\Lesson
+customViewPath: $/pensoft/courses/controllers/lessons
+title: Manage Lessons
+
+noRecordsMessage: backend::lang.list.no_records
+
+recordsPerPage: 20
+
+showSetup: true
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt
+
+recordUrl: pensoft/courses/lessons/update/:id 

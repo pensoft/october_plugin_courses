@@ -10,6 +10,7 @@ columns:
     name:
         label: Name
         searchable: true
+        clickable: true
         
     slug:
         label: Slug

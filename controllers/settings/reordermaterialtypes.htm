@@ -1,0 +1,9 @@
+<?php Block::put('breadcrumb') ?>
+    <ul>
+        <li><a href="<?= Backend::url('pensoft/courses/settings') ?>">Settings</a></li>
+        <li><a href="<?= Backend::url('pensoft/courses/settings/materialtypes') ?>">Material Types</a></li>
+        <li><?= e($this->pageTitle) ?></li>
+    </ul>
+<?php Block::endPut() ?>
+
+<?= $this->reorderRender() ?> 

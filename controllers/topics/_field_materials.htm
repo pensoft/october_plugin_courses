@@ -1,108 +1,42 @@
-<?php if (!$this->fatalError): ?>
-
-    <div class="relation-behavior list-header">
-        <h3>Learning Materials</h3>
-        <p>All learning materials across lessons in this topic</p>
-    </div>
-
-    <div id="materials-container">
-        <?php
-        $lessonsQuery = \Pensoft\Courses\Models\Lesson::whereHas('block', function($query) use ($formModel) {
-            $query->where('topic_id', $formModel->id);
-        })->orderBy('sort_order')->get();
-        
-        $materialsQuery = \Pensoft\Courses\Models\Material::whereHas('lesson.block', function($query) use ($formModel) {
-            $query->where('topic_id', $formModel->id);
-        })->orderBy('sort_order')->get();
-        ?>
-
-        <!-- Add Material Form -->
-        <?php if (count($lessonsQuery) > 0): ?>
-            <div class="form-group">
-                <div class="callout fade in callout-info no-subheader">
-                    <div class="header">
-                        <i class="icon-info"></i>
-                        <h3>Add New Material</h3>
-                    </div>
-                    <div class="content">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <select name="lesson_id" class="form-control" required>
-                                    <option value="">-- Select Lesson --</option>
-                                    <?php foreach ($lessonsQuery as $lesson): ?>
-                                        <option value="<?= $lesson->id ?>"><?= e($lesson->name) ?> (<?= e($lesson->block->name) ?>)</option>
-                                    <?php endforeach ?>
-                                </select>
-                            </div>
-                            <div class="col-md-5">
-                                <input type="text" name="material_title" class="form-control" placeholder="Material Title" required>
-                            </div>
-                            <div class="col-md-3">
-                                <button 
-                                    type="button" 
-                                    class="btn btn-primary btn-block" 
-                                    data-request="onAddMaterial"
-                                    data-request-success="$('input[name=material_title]').val('')">
-                                    Add Material
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php else: ?>
-            <div class="callout fade in callout-warning">
-                <div class="header">
-                    <i class="icon-warning"></i>
-                    <h3>No Lessons Available</h3>
-                </div>
-                <div class="content">
-                    <p>You need to create at least one lesson before adding materials. Go to the "Lessons" tab to add lessons.</p>
-                </div>
-            </div>
-        <?php endif ?>
-
-        <!-- Materials List -->
-        <div class="list-preview list-flush">
-            <div class="control-list">
-                <table class="table data">
-                    <thead>
-                        <tr>
-                            <th><span>Title</span></th>
-                            <th><span>Lesson</span></th>
-                            <th><span>Block</span></th>
-                            <th><span>Order</span></th>
-                            <th class="text-right"><span>Actions</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (count($materialsQuery)): ?>
-                            <?php foreach ($materialsQuery as $material): ?>
-                                <tr>
-                                    <td><?= e($material->title) ?></td>
-                                    <td><?= e($material->lesson->name) ?></td>
-                                    <td><?= e($material->lesson->block->name) ?></td>
-                                    <td><?= e($material->sort_order) ?></td>
-                                    <td class="text-right">
-                                        <a 
-                                            href="<?= Backend::url('pensoft/courses/materials/update/'.$material->id) ?>"
-                                            class="btn btn-primary btn-sm">
-                                            <i class="icon-pencil"></i> Edit
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="5" class="text-center">No materials for this topic yet</td>
-                            </tr>
-                        <?php endif ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
+<!-- <?php if(!$this->formGetModel()->id): ?>
+    <p class="flash-message static warning">Please save the topic first before viewing materials.</p>
 <?php else: ?>
-    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
-<?php endif ?> 
+    <?php 
+    // Get all materials from all lessons in this topic
+    $materials = [];
+    foreach ($this->formGetModel()->lessons as $lesson) {
+        foreach ($lesson->materials as $material) {
+            $materials[] = $material;
+        }
+    }
+    ?>
+    
+    <?php if(empty($materials)): ?>
+        <p class="flash-message static warning">No materials found. Please create lessons first, then add materials to lessons.</p>
+    <?php else: ?>
+        <div class="list-preview">
+            <table class="table data">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Lesson</th>
+                        <th>Type</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($materials as $material): ?>
+                    <tr>
+                        <td><?= $material->id ?></td>
+                        <td><?= $material->name ?></td>
+                        <td><a href="<?= Backend::url('pensoft/courses/lessons/update/'.$material->lesson_id) ?>"><?= $material->lesson->name ?></a></td>
+                        <td><?= $material->type ?></td>
+                        <td><?= $material->created_at->format('Y-m-d H:i:s') ?></td>
+                    </tr>
+                    <?php endforeach ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif ?>
+<?php endif ?>  -->

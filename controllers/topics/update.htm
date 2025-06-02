@@ -40,9 +40,12 @@
                     data-load-indicator="<?= e(trans('backend::lang.form.deleting')) ?>"
                     data-request-confirm="<?= e(trans('backend::lang.form.confirm_delete')) ?>">
                 </button>
+
+                <span class="btn-text">
+                    <?= e(trans('backend::lang.form.or')) ?> <a href="<?= Backend::url('pensoft/courses/topics') ?>"><?= e(trans('backend::lang.form.cancel')) ?></a>
+                </span>
             </div>
         </div>
-
     <?= Form::close() ?>
 
 <?php else: ?>

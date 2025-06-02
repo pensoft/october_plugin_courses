@@ -3,6 +3,7 @@
 use Model;
 use October\Rain\Database\Traits\Validation;
 use October\Rain\Database\Traits\Sluggable;
+use October\Rain\Database\Traits\Sortable;
 
 /**
  * Block Model
@@ -11,6 +12,7 @@ class Block extends Model
 {
     use Validation;
     use Sluggable;
+    use Sortable;
 
     /**
      * @var string table associated with the model
@@ -25,7 +27,7 @@ class Block extends Model
     /**
      * @var array fillable attributes are mass assignable
      */
-    protected $fillable = ['name', 'slug', 'topic_id', 'sort_order'];
+    protected $fillable = ['name', 'slug', 'topic_id', 'sort_order', 'level'];
 
     /**
      * @var array rules for validation
@@ -34,6 +36,7 @@ class Block extends Model
         'name' => 'required',
         'slug' => 'required|unique:pensoft_courses_blocks',
         'topic_id' => 'required|exists:pensoft_courses_topics,id',
+        'level' => 'nullable',
         'sort_order' => 'integer'
     ];
 
@@ -90,4 +93,26 @@ class Block extends Model
     public $morphMany = [];
     public $attachOne = [];
     public $attachMany = [];
+
+    /**
+     * Get level options from settings
+     */
+    public function getLevelOptions()
+    {
+        return \Pensoft\Courses\Models\Setting::getBlockLevelOptions();
+    }
+
+    /**
+     * Scope for searching blocks by name
+     */
+    public function scopeSearch($query, $searchTerm)
+    {
+        if (empty($searchTerm)) {
+            return $query;
+        }
+
+        $searchTerm = strtolower(trim($searchTerm));
+        
+        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%']);
+    }
 }

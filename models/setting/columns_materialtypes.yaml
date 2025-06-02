@@ -1,0 +1,34 @@
+# ===================================
+#  List Column Definitions - Material Types
+# ===================================
+
+columns:
+    label:
+        label: Type Name
+        type: text
+        searchable: true
+        sortable: true
+        
+    value:
+        label: Value
+        type: text
+        searchable: true
+        sortable: true
+        
+    sort_order:
+        label: Order
+        type: number
+        sortable: true
+        width: 80px
+        
+    is_active:
+        label: Active
+        type: switch
+        sortable: true
+        width: 80px
+        
+    created_at:
+        label: Created
+        type: datetime
+        sortable: true
+        width: 150px 

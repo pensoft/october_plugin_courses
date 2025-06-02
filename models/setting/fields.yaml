@@ -1,43 +1,38 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
 fields:
-    key:
-        label: Key
+    type:
+        label: Type
+        type: dropdown
+        options: getTypeOptions
+        required: true
+        span: left
+        default: '{{ settingType|default }}'
+        
+    value:
+        label: Value
+        span: right
+        required: true
+        comment: 'Unique identifier used in code (lowercase, no spaces)'
+        
+    label:
+        label: Display Label
         span: left
         required: true
-        comment: Unique identifier for this setting
+        comment: 'Human-readable label shown to users'
         
-    group:
-        label: Group
+    sort_order:
+        label: Sort Order
+        type: number
         span: right
-        comment: Category for organizing related settings
+        default: 0
+        comment: 'Lower numbers appear first'
         
-tabs:
-    fields:
-        value:
-            tab: Value
-            label: Value
-            type: codeeditor
-            size: huge
-            language: json
-            comment: Setting value in JSON format
-            
-        value_simple:
-            tab: Value
-            label: Simple Value
-            trigger:
-                action: show
-                field: is_simple
-                condition: checked
-            comment: Use this for simple text or numeric values
-            
-        is_simple:
-            tab: Value
-            label: Simple Value Type
-            type: checkbox
-            comment: Check this if the setting is a simple text or number instead of complex JSON
-            
-        description:
-            tab: Description
-            label: Description
-            type: textarea
-            size: small
-            comment: Detailed explanation of what this setting does 
+    is_active:
+        label: Active
+        type: switch
+        default: true
+        span: full
+        comment: 'Inactive items will not appear in dropdown options' 

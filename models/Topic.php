@@ -3,7 +3,9 @@
 use Model;
 use October\Rain\Database\Traits\Validation;
 use October\Rain\Database\Traits\Sluggable;
+use October\Rain\Database\Traits\Sortable;
 use RainLab\Location\Models\Country;
+use Pensoft\Partners\Models\Partners;
 
 /**
  * Topic Model
@@ -12,6 +14,7 @@ class Topic extends Model
 {
     use Validation;
     use Sluggable;
+    use Sortable;
 
     /**
      * @var string table associated with the model
@@ -26,7 +29,7 @@ class Topic extends Model
     /**
      * @var array fillable attributes are mass assignable
      */
-    protected $fillable = ['name', 'slug', 'language', 'sort_order'];
+    protected $fillable = ['name', 'slug', 'language', 'sort_order', 'institution'];
 
     /**
      * @var array rules for validation
@@ -35,7 +38,8 @@ class Topic extends Model
         'name' => 'required',
         'slug' => 'required|unique:pensoft_courses_topics',
         'language' => 'nullable',
-        'sort_order' => 'integer'
+        'sort_order' => 'integer',
+        'institution' => 'nullable'
     ];
 
     /**
@@ -72,28 +76,74 @@ class Topic extends Model
     protected $slugs = ['slug' => 'name'];
 
     /**
-     * Returns options for language dropdown
-     */
-    public function getLanguageOptions()
-    {
-        return Country::isEnabled()->orderBy('is_pinned', 'desc')->orderBy('name', 'asc')->lists('name', 'code');
-    }
-
-    /**
      * @var array hasOne and other relations
      */
     public $hasOne = [];
+
     public $hasMany = [
         'blocks' => [
             'Pensoft\Courses\Models\Block'
         ]
     ];
-    public $belongsTo = [];
+    
+    public $hasManyThrough = [
+        'lessons' => [
+            'Pensoft\Courses\Models\Lesson',
+            'through' => 'Pensoft\Courses\Models\Block'
+        ]
+    ];
+
+    public $belongsTo = [
+        'partner' => [
+            'Pensoft\Partners\Models\Partners',
+            'key' => 'institution',
+            'otherKey' => 'id'
+        ]
+    ];
+
     public $belongsToMany = [];
+
     public $morphTo = [];
+
     public $morphOne = [];
+
     public $morphMany = [];
+
     public $attachOne = [];
+
     public $attachMany = [];
 
+    /**
+     * Returns options for language dropdown
+     */
+    public function getLanguageOptions()
+    {
+        return \Pensoft\Courses\Models\Language::getLanguageOptionsForDropdown();
+    }
+
+    /**
+     * Returns options for institution dropdown
+     */
+    public function getInstitutionOptions()
+    {
+        return Partners::whereNotNull('instituion')
+            ->where('instituion', '!=', '')
+            ->where('type', 1)
+            ->orderBy('instituion', 'asc')
+            ->lists('instituion', 'id');
+    }
+
+    /**
+     * Scope for searching topics by name
+     */
+    public function scopeSearch($query, $searchTerm)
+    {
+        if (empty($searchTerm)) {
+            return $query;
+        }
+
+        $searchTerm = strtolower(trim($searchTerm));
+        
+        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%']);
+    }
 }

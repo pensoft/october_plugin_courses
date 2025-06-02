@@ -11,5 +11,17 @@
     - Create materials table
     - create_materials_table.php
 1.0.5:
-    - Create settings table
+    - Create settings table for managing block levels and material types
     - create_settings_table.php
+1.0.6:
+    - Add new fields to materials table (prefix, duration, keywords, youtube_url, quiz)
+    - update_materials_table.php
+1.0.7:
+    - Add new field to materials table (instruction)
+    - update_materials_table_2.php
+1.0.8:
+    - Add new field to topics table (instruction)
+    - update_topics_table.php
+1.0.9:
+    - Alter name of field (instruction) to (institution)
+    - update_topics_table_2.php

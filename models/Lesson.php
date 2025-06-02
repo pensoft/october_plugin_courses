@@ -3,6 +3,7 @@
 use Model;
 use October\Rain\Database\Traits\Validation;
 use October\Rain\Database\Traits\Sluggable;
+use October\Rain\Database\Traits\Sortable;
 
 /**
  * Lesson Model
@@ -11,6 +12,7 @@ class Lesson extends Model
 {
     use Validation;
     use Sluggable;
+    use Sortable;
 
     /**
      * @var string table associated with the model
@@ -90,4 +92,18 @@ class Lesson extends Model
     public $morphMany = [];
     public $attachOne = [];
     public $attachMany = [];
+
+    /**
+     * Scope for searching lessons by name
+     */
+    public function scopeSearch($query, $searchTerm)
+    {
+        if (empty($searchTerm)) {
+            return $query;
+        }
+
+        $searchTerm = strtolower(trim($searchTerm));
+        
+        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%']);
+    }
 }

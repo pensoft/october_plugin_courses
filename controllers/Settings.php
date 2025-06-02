@@ -2,28 +2,25 @@
 
 use BackendMenu;
 use Backend\Classes\Controller;
-use Flash;
+use Backend\Facades\Backend;
 use Pensoft\Courses\Models\Setting;
-use RainLab\Location\Models\Country;
-use Input;
+use Flash;
 
 /**
- * Settings Backend Controller
+ * Settings Back-end Controller
  */
 class Settings extends Controller
 {
     public $implement = [
-        \Backend\Behaviors\ListController::class
+        'Backend.Behaviors.FormController',
+        'Backend.Behaviors.ListController',
+        'Backend.Behaviors.ReorderController'
     ];
 
-    /**
-     * @var string listConfig file
-     */
+    public $formConfig = 'config_form.yaml';
     public $listConfig = 'config_list.yaml';
+    public $reorderConfig = 'config_reorder.yaml';
 
-    /**
-     * __construct the controller
-     */
     public function __construct()
     {
         parent::__construct();
@@ -32,135 +29,257 @@ class Settings extends Controller
     }
 
     /**
-     * Index action - main settings overview
+     * Show overview page
      */
     public function index()
     {
-        $this->pageTitle = 'Settings';
+        $this->pageTitle = 'Settings Overview';
+        $this->bodyClass = 'compact-container';
         
-        $this->vars['languages'] = Country::isEnabled()->whereNotNull('country_language')->count();
-        $this->vars['levels'] = Setting::getLevelOptions();
-        $this->vars['departments'] = Setting::getDepartmentOptions();
-        $this->vars['materialTypes'] = Setting::getMaterialTypeOptions();
+        $this->vars['blockLevelsCount'] = Setting::blockLevels()->active()->count();
+        $this->vars['materialTypesCount'] = Setting::materialTypes()->active()->count();
+        $this->vars['totalSettingsCount'] = Setting::active()->count();
     }
-    
+
     /**
-     * Level management
+     * Show block levels page
      */
     public function levels()
     {
-        $this->pageTitle = 'Level Settings';
-        $this->vars['levels'] = Setting::getLevels();
+        $this->pageTitle = 'Manage Block Levels';
+        $this->bodyClass = 'compact-container';
+        $this->listConfig = 'config_list_levels.yaml';
+        return $this->asExtension('ListController')->index();
     }
-    
+
     /**
-     * Add a new level
+     * Extend the list query for levels page
      */
-    public function onAddLevel()
+    public function listExtendQuery($query)
     {
-        $data = post();
+        $action = $this->action;
         
-        if (empty($data['code']) || empty($data['name'])) {
-            Flash::error('Please provide all required fields.');
-            return;
+        if ($action == 'levels') {
+            $query->where('type', Setting::TYPE_BLOCK_LEVEL);
+        } elseif ($action == 'materialtypes') {
+            $query->where('type', Setting::TYPE_MATERIAL_TYPE);
         }
         
-        Setting::addLevel($data['code'], $data['name'], $data['description'] ?? '');
-        Flash::success('Level has been added successfully.');
-        
-        return $this->refreshLevelsList();
+        return $query;
     }
-    
+
     /**
-     * Remove a level
-     */
-    public function onRemoveLevel()
-    {
-        $code = post('code');
-        
-        if (empty($code)) {
-            Flash::error('Level code is required.');
-            return;
-        }
-        
-        Setting::removeLevel($code);
-        Flash::success('Level has been removed successfully.');
-        
-        return $this->refreshLevelsList();
-    }
-    
-    /**
-     * Refresh levels list partial
-     */
-    protected function refreshLevelsList()
-    {
-        $this->vars['levels'] = Setting::getLevels();
-        return [
-            '#level-list' => $this->makePartial('level_list')
-        ];
-    }
-    
-    /**
-     * Material types management
+     * Show material types page
      */
     public function materialtypes()
     {
-        $this->pageTitle = 'Material Type Settings';
-        $this->vars['materialTypes'] = Setting::getMaterialTypes();
+        $this->pageTitle = 'Manage Material Types';
+        $this->bodyClass = 'compact-container';
+        $this->listConfig = 'config_list_materialtypes.yaml';
+        return $this->asExtension('ListController')->index();
     }
-    
+
     /**
-     * Add a new material type
+     * Create a new block level
      */
-    public function onAddMaterialType()
+    public function createLevel()
     {
-        $data = post();
+        $this->pageTitle = 'Create Block Level';
+        $this->bodyClass = 'compact-container';
         
-        if (empty($data['code']) || empty($data['name'])) {
-            Flash::error('Please provide all required fields.');
-            return;
+        // Pre-populate the type field
+        $this->vars['settingType'] = Setting::TYPE_BLOCK_LEVEL;
+        $this->vars['backUrl'] = Backend::url('pensoft/courses/settings/levels');
+        
+        $this->asExtension('FormController')->create();
+    }
+
+    /**
+     * Create a new material type
+     */
+    public function createMaterialType()
+    {
+        $this->pageTitle = 'Create Material Type';
+        $this->bodyClass = 'compact-container';
+        
+        // Pre-populate the type field
+        $this->vars['settingType'] = Setting::TYPE_MATERIAL_TYPE;
+        $this->vars['backUrl'] = Backend::url('pensoft/courses/settings/materialtypes');
+        
+        $this->asExtension('FormController')->create();
+    }
+
+    /**
+     * Form event handler to pre-populate fields when creating
+     */
+    public function formExtendModel($model)
+    {
+        // Set the type based on the query parameter
+        if (get('type') == 'blocklevel') {
+            $model->type = Setting::TYPE_BLOCK_LEVEL;
+        } elseif (get('type') == 'materialtype') {
+            $model->type = Setting::TYPE_MATERIAL_TYPE;
+        }
+        return $model;
+    }
+
+    /**
+     * Handle successful form save
+     */
+    public function formAfterSave($model)
+    {
+        // Redirect based on the type after successful save
+        if ($model->type == Setting::TYPE_BLOCK_LEVEL) {
+            Flash::success('Block Level created successfully!');
+            return redirect(Backend::url('pensoft/courses/settings/levels'));
+        } elseif ($model->type == Setting::TYPE_MATERIAL_TYPE) {
+            Flash::success('Material Type created successfully!');
+            return redirect(Backend::url('pensoft/courses/settings/materialtypes'));
+        }
+    }
+
+    /**
+     * Handle "Save and Close" button for create actions
+     */
+    public function onSaveAndClose()
+    {
+        // Determine the redirect URL based on the current action
+        $redirectUrl = 'pensoft/courses/settings';
+        
+        if ($this->action == 'createLevel') {
+            $redirectUrl = 'pensoft/courses/settings/levels';
+        } elseif ($this->action == 'createMaterialType') {
+            $redirectUrl = 'pensoft/courses/settings/materialtypes';
         }
         
-        Setting::addMaterialType($data['code'], $data['name'], $data['description'] ?? '');
-        Flash::success('Material type has been added successfully.');
+        // Call the parent save method
+        $result = $this->asExtension('FormController')->create_onSave();
         
-        return $this->refreshMaterialTypesList();
-    }
-    
-    /**
-     * Remove a material type
-     */
-    public function onRemoveMaterialType()
-    {
-        $code = post('code');
-        trace_log('Removing material type with code: ' . $code);
-        
-        if (empty($code)) {
-            Flash::error('Material type code is required.');
-            trace_log('Error: Material type code is empty');
-            return;
+        // If save was successful, redirect to the appropriate list
+        if ($result) {
+            return redirect(Backend::url($redirectUrl));
         }
         
-        $types = Setting::getMaterialTypes();
-        trace_log('Current material types: ' . json_encode($types));
-        
-        Setting::removeMaterialType($code);
-        Flash::success('Material type has been removed successfully.');
-        
-        $updatedTypes = Setting::getMaterialTypes();
-        trace_log('Updated material types: ' . json_encode($updatedTypes));
-        
-        return $this->refreshMaterialTypesList();
+        return $result;
     }
-    
+
     /**
-     * Refresh material types list partial
+     * Update a setting
      */
-    protected function refreshMaterialTypesList()
+    public function update($recordId = null)
     {
-        $this->vars['materialTypes'] = Setting::getMaterialTypes();
-        return [
-            '#material-type-list' => $this->makePartial('material_type_list')
-        ];
+        $setting = Setting::find($recordId);
+        
+        if ($setting) {
+            if ($setting->type == Setting::TYPE_BLOCK_LEVEL) {
+                $this->pageTitle = 'Edit Block Level';
+                $this->vars['backUrl'] = Backend::url('pensoft/courses/settings/levels');
+            } else {
+                $this->pageTitle = 'Edit Material Type';
+                $this->vars['backUrl'] = Backend::url('pensoft/courses/settings/materialtypes');
+            }
+        }
+        
+        $this->bodyClass = 'compact-container';
+        $this->asExtension('FormController')->update($recordId);
+    }
+
+    /**
+     * Preview a setting (readonly view)
+     */
+    public function preview($recordId = null)
+    {
+        $setting = Setting::find($recordId);
+        
+        if ($setting) {
+            if ($setting->type == Setting::TYPE_BLOCK_LEVEL) {
+                $this->pageTitle = 'View Block Level';
+                $this->vars['backUrl'] = Backend::url('pensoft/courses/settings/levels');
+            } else {
+                $this->pageTitle = 'View Material Type';
+                $this->vars['backUrl'] = Backend::url('pensoft/courses/settings/materialtypes');
+            }
+        }
+        
+        $this->bodyClass = 'compact-container';
+        $this->asExtension('FormController')->preview($recordId);
+    }
+
+    /**
+     * Delete selected settings
+     */
+    public function onDelete()
+    {
+        if (($checkedIds = post('checked')) && is_array($checkedIds) && count($checkedIds)) {
+            foreach ($checkedIds as $recordId) {
+                if (!$record = Setting::find($recordId)) {
+                    continue;
+                }
+                $record->delete();
+            }
+            
+            Flash::success('Successfully deleted selected settings.');
+        }
+        
+        return $this->listRefresh();
+    }
+
+    /**
+     * Reorder block levels
+     */
+    public function reorderLevels()
+    {
+        $this->pageTitle = 'Reorder Block Levels';
+        $this->bodyClass = 'compact-container';
+        
+        // Override reorder config for this action
+        $this->reorderConfig = 'config_reorder_levels.yaml';
+        
+        // Initialize the reorder behavior
+        $this->asExtension('ReorderController')->reorder();
+    }
+
+    /**
+     * Reorder material types
+     */
+    public function reorderMaterialTypes()
+    {
+        $this->pageTitle = 'Reorder Material Types';
+        $this->bodyClass = 'compact-container';
+        
+        // Override reorder config for this action
+        $this->reorderConfig = 'config_reorder_materialtypes.yaml';
+        
+        // Initialize the reorder behavior
+        $this->asExtension('ReorderController')->reorder();
+    }
+
+    /**
+     * Filter reorder query based on the action
+     */
+    public function reorderExtendQuery($query)
+    {
+        $action = $this->action;
+        
+        if ($action == 'reorderLevels') {
+            $query->where('type', Setting::TYPE_BLOCK_LEVEL);
+        } elseif ($action == 'reorderMaterialTypes') {
+            $query->where('type', Setting::TYPE_MATERIAL_TYPE);
+        }
+        
+        return $query;
+    }
+
+    public function create()
+    {
+        $type = get('type');
+        if ($type == 'blocklevel') {
+            $this->vars['backUrl'] = Backend::url('pensoft/courses/settings/levels');
+        } elseif ($type == 'materialtype') {
+            $this->vars['backUrl'] = Backend::url('pensoft/courses/settings/materialtypes');
+        } else {
+            $this->vars['backUrl'] = Backend::url('pensoft/courses/settings');
+        }
+        return $this->asExtension('FormController')->create();
     }
 } 
