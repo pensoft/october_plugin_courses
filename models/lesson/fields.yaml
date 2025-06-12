@@ -15,10 +15,6 @@ fields:
         span: left
         required: true
         
-    department:
-        label: Institution
-        span: right
-        
     slug:
         label: Slug
         span: right

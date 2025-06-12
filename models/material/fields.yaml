@@ -27,24 +27,34 @@ fields:
         label: Material Type
         type: dropdown
         required: true
+        span: left
+        
+    target_audiences:
+        label: Target Audiences
+        type: checkboxlist
         span: full
+        required: true
+        comment: Select one or more target audiences for this material
         
     language:
         label: Language
         type: dropdown
         emptyOption: -- Select Language --
         span: full
+        required: true
         
     prefix:
         label: Prefix
         type: text
         span: left
+        required: true
         comment: A prefix for this material
         
     duration:
         label: Duration
         type: text
         span: right
+        required: true
         comment: Duration of the material (e.g., "30 minutes", "2 hours")
         
     description:
@@ -52,14 +62,16 @@ fields:
         type: textarea
         size: large
         span: full
+        required: true
         
     keywords:
         label: Keywords
         type: taglist
         span: full
+        required: true
         comment: Keywords for search functionality (press enter to add each keyword)
     
-    # YouTube URL field - only shown for video type
+    # YouTube URL field - only shown for video tour type
     youtube_url:
         label: YouTube URL
         type: text
@@ -68,9 +80,9 @@ fields:
         trigger:
             action: show
             field: type
-            condition: value[video]
+            condition: value[video_tour]
             
-    # Video file upload - only shown for video type  
+    # Video file upload - only shown for video tour type  
     video_file:
         label: Video File
         type: fileupload
@@ -81,21 +93,21 @@ fields:
         trigger:
             action: show
             field: type
-            condition: value[video]
+            condition: value[video_tour]
     
-    # Quiz field - only shown for quiz type
+    # H5P/Quiz field - shown for interactive presentation, evaluation, and virtual reality tour types
     quiz:
-        label: Quiz Content
-        type: richeditor
+        label: H5P Embed URL / Quiz Content
+        type: textarea
         size: large
         span: full
-        comment: Quiz content and questions
+        comment: For H5P content, paste the embed URL. For evaluations/quizzes, enter HTML content or embed URL. For VR tours, paste the H5P embed URL
         trigger:
             action: show
             field: type
-            condition: value[quiz]
+            condition: value[interactive_presentation_h5p] value[evaluation] value[virtual_reality_tour]
     
-    # Document file upload - shown for all types except video and quiz
+    # Document file upload - shown for document types, worksheets, guidelines, etc.
     document_file:
         label: Document/File
         type: fileupload
@@ -104,9 +116,9 @@ fields:
         span: full
         comment: Upload a document or file
         trigger:
-            action: hide
+            action: show
             field: type
-            condition: value[video] value[quiz]
+            condition: value[document] value[textbook_chapter] value[worksheet] value[guideline] value[standard_of_practice]
         
     cover:
         label: Cover Image
@@ -114,3 +126,75 @@ fields:
         mode: image
         fileTypes: jpg,jpeg,png,gif,webp
         span: full
+        required: true
+
+    # Gallery for photo gallery materials
+    gallery:
+        label: Gallery Images
+        type: fileupload
+        mode: image
+        fileTypes: jpg,jpeg,png,gif,webp
+        span: full
+        comment: Upload multiple images for photo gallery materials
+        trigger:
+            action: show
+            field: type
+            condition: value[photo_gallery]
+
+    # Additional Material Information
+    author:
+        label: Author
+        type: text
+        span: left
+        required: true
+        comment: Author of the material
+
+    contact_information:
+        label: Contact Information for Lead Author
+        type: text
+        span: right
+        required: true
+        comment: Email or contact information for the lead author
+
+    copyright:
+        label: Copyright
+        type: text
+        span: left
+        required: true
+        comment: Copyright information
+
+    link_to_other_materials:
+        label: Link to Other Useful Materials
+        type: text
+        span: right
+        comment: Link to related or useful materials
+
+    download_possible:
+        label: Download Possible
+        type: checkbox
+        span: left
+        comment: Allow users to download this material
+
+    date_of_creation:
+        label: Date of Creation
+        type: datepicker
+        mode: date
+        span: right
+        required: true
+        comment: When the material was created
+
+    date_of_version:
+        label: Date of Version
+        type: datepicker
+        mode: date
+        span: left
+        required: true
+        comment: Version date of the material
+
+    date_of_upload:
+        label: Date of Upload
+        type: datepicker
+        mode: date
+        span: right
+        required: true
+        comment: When the material was uploaded to the system

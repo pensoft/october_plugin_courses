@@ -66,6 +66,7 @@ class Plugin extends PluginBase
         return [
             'Pensoft\Courses\Components\CoursesResults' => 'coursesResults',
             'Pensoft\Courses\Components\TopicDetails' => 'topicDetails',
+            'Pensoft\Courses\Components\SearchSuggestions' => 'searchSuggestions',
         ];
     }
 

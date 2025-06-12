@@ -25,3 +25,9 @@
 1.0.9:
     - Alter name of field (instruction) to (institution)
     - update_topics_table_2.php
+1.0.10:
+    - Add target audience and additional fields to materials table
+    - update_materials_table_3.php
+1.0.11:
+    - Convert target audience to multiple selection (JSON) and add gallery support
+    - update_materials_table_4.php

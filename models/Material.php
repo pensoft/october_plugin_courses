@@ -3,6 +3,7 @@
 use Model;
 use October\Rain\Database\Traits\Validation;
 use October\Rain\Database\Traits\Sluggable;
+use October\Rain\Database\Traits\Sortable;
 
 /**
  * Material Model
@@ -11,6 +12,7 @@ class Material extends Model
 {
     use Validation;
     use Sluggable;
+    use Sortable;
 
     /**
      * @var string table associated with the model
@@ -25,7 +27,12 @@ class Material extends Model
     /**
      * @var array fillable attributes are mass assignable
      */
-    protected $fillable = ['name', 'slug', 'description', 'type', 'lesson_id', 'language', 'sort_order', 'prefix', 'duration', 'keywords', 'youtube_url', 'quiz', 'video_file', 'document_file'];
+    protected $fillable = [
+        'name', 'slug', 'description', 'type', 'target_audience', 'target_audiences', 'lesson_id', 'language', 'sort_order', 
+        'prefix', 'duration', 'keywords', 'youtube_url', 'quiz', 'video_file', 'document_file',
+        'author', 'contact_information', 'copyright', 'link_to_other_materials', 'download_possible',
+        'date_of_creation', 'date_of_version', 'date_of_upload'
+    ];
 
     /**
      * @var array rules for validation
@@ -33,18 +40,28 @@ class Material extends Model
     public $rules = [
         'name' => 'required',
         'slug' => 'required|unique:pensoft_courses_materials',
-        'description' => 'nullable',
+        'description' => 'required',
         'type' => 'required',
+        'target_audience' => 'nullable', // Keep for backward compatibility
+        'target_audiences' => 'required|array|min:1',
         'lesson_id' => 'required|exists:pensoft_courses_lessons,id',
-        'language' => 'nullable',
+        'language' => 'required',
         'sort_order' => 'integer',
-        'prefix' => 'nullable',
-        'duration' => 'nullable', 
-        'keywords' => 'nullable',
+        'prefix' => 'required',
+        'duration' => 'required', 
+        'keywords' => 'required',
         'youtube_url' => 'nullable|url',
         'quiz' => 'nullable',
         'video_file' => 'nullable',
-        'document_file' => 'nullable'
+        'document_file' => 'nullable',
+        'author' => 'required',
+        'contact_information' => 'required|email',
+        'copyright' => 'required',
+        'link_to_other_materials' => 'nullable',
+        'download_possible' => 'boolean',
+        'date_of_creation' => 'required|date',
+        'date_of_version' => 'required|date',
+        'date_of_upload' => 'required|date'
     ];
 
     /**
@@ -55,7 +72,7 @@ class Material extends Model
     /**
      * @var array jsonable attribute names that are json encoded and decoded from the database
      */
-    protected $jsonable = ['keywords'];
+    protected $jsonable = ['keywords', 'target_audiences'];
 
     /**
      * @var array appends attributes to the API representation of the model (ex. toArray())
@@ -72,7 +89,10 @@ class Material extends Model
      */
     protected $dates = [
         'created_at',
-        'updated_at'
+        'updated_at',
+        'date_of_creation',
+        'date_of_version',
+        'date_of_upload'
     ];
 
     /**
@@ -81,29 +101,83 @@ class Material extends Model
     protected $slugs = ['slug' => 'name'];
 
     /**
+     * Mutator for keywords field to handle empty values
+     * Converts empty strings to NULL to avoid JSON parsing errors
+     */
+    public function setKeywordsAttribute($value)
+    {
+        // If the value is an empty string, set it to null
+        if ($value === '' || $value === null) {
+            $this->attributes['keywords'] = null;
+        } else {
+            $this->attributes['keywords'] = $value;
+        }
+    }
+
+    /**
+     * Mutator for target_audiences field to handle empty values
+     * Converts empty strings to NULL to avoid JSON parsing errors
+     */
+    public function setTargetAudiencesAttribute($value)
+    {
+        // If the value is an empty string or empty array, set it to null
+        if ($value === '' || $value === null || (is_array($value) && empty($value))) {
+            $this->attributes['target_audiences'] = null;
+        } else {
+            $this->attributes['target_audiences'] = $value;
+        }
+    }
+
+    /**
+     * Accessor to get target audiences - prioritize new field over old
+     */
+    public function getTargetAudiencesListAttribute()
+    {
+        // If new field exists, use it
+        if (!empty($this->target_audiences)) {
+            return $this->target_audiences;
+        }
+        
+        // Fall back to old field for backward compatibility
+        if (!empty($this->target_audience)) {
+            return [$this->target_audience];
+        }
+        
+        return [];
+    }
+
+    /**
      * Material types
      */
-    const TYPE_TEXT = 'text';
-    const TYPE_VIDEO = 'video';
+    const TYPE_INTERACTIVE_PRESENTATION = 'interactive_presentation_h5p';
+    const TYPE_VIDEO_TOUR = 'video_tour';
+    const TYPE_VIRTUAL_REALITY_TOUR = 'virtual_reality_tour';
+    const TYPE_PODCAST = 'podcast';
+    const TYPE_TEXTBOOK_CHAPTER = 'textbook_chapter';
+    const TYPE_WORKSHEET = 'worksheet';
+    const TYPE_PHOTO_GALLERY = 'photo_gallery';
+    const TYPE_IMAGE = 'image';
+    const TYPE_GUIDELINE = 'guideline';
+    const TYPE_STANDARD_OF_PRACTICE = 'standard_of_practice';
     const TYPE_DOCUMENT = 'document';
-    const TYPE_QUIZ = 'quiz';
+    const TYPE_EVALUATION = 'evaluation';
 
     public function getTypeOptions()
     {
-        // First get options from settings
-        $settingsOptions = \Pensoft\Courses\Models\Setting::getMaterialTypeOptions();
-        
-        // If settings are empty, fall back to hardcoded options for backwards compatibility
-        if (empty($settingsOptions)) {
-            return [
-                self::TYPE_TEXT => 'Text',
-                self::TYPE_VIDEO => 'Video',
-                self::TYPE_DOCUMENT => 'Document',
-                self::TYPE_QUIZ => 'Quiz'
-            ];
-        }
-        
-        return $settingsOptions;
+        return [
+            self::TYPE_INTERACTIVE_PRESENTATION => 'Interactive Presentation (H5P)',
+            self::TYPE_VIDEO_TOUR => 'Video Tour',
+            self::TYPE_VIRTUAL_REALITY_TOUR => 'Virtual Reality Tour',
+            self::TYPE_PODCAST => 'Podcast',
+            self::TYPE_TEXTBOOK_CHAPTER => 'Textbook Chapter',
+            self::TYPE_WORKSHEET => 'Worksheet',
+            self::TYPE_PHOTO_GALLERY => 'Photo Gallery',
+            self::TYPE_IMAGE => 'Image',
+            self::TYPE_GUIDELINE => 'Guideline',
+            self::TYPE_STANDARD_OF_PRACTICE => 'Standard of Practice',
+            self::TYPE_DOCUMENT => 'Document',
+            self::TYPE_EVALUATION => 'Evaluation'
+        ];
     }
 
     /**
@@ -112,6 +186,38 @@ class Material extends Model
     public function getLanguageOptions()
     {
         return \Pensoft\Courses\Models\Language::getLanguageOptionsForDropdown();
+    }
+
+    /**
+     * Returns options for target audience dropdown (legacy field)
+     */
+    public function getTargetAudienceOptions()
+    {
+        return [
+            'architects' => 'Architects',
+            'engineers' => 'Engineers',
+            'environmental_educators' => 'Environmental Educators',
+            'teachers' => 'Teachers',
+            'farmers' => 'Farmers',
+            'foresters' => 'Foresters',
+            'landscape_gardeners' => 'Landscape Gardeners',
+            'ngos' => 'NGOs',
+            'policymakers' => 'Policymakers',
+            'restoration_practitioners' => 'Restoration Practitioners',
+            'students' => 'Students',
+            'urban_planner' => 'Urban Planner',
+            'local_community' => 'Local Community',
+            'indigenous_native_group' => 'Indigenous / Native Group',
+            'underrepresented_groups' => 'Underrepresented Groups'
+        ];
+    }
+
+    /**
+     * Returns options for target audiences checkboxlist (new field)
+     */
+    public function getTargetAudiencesOptions()
+    {
+        return $this->getTargetAudienceOptions();
     }
 
     /**
@@ -133,7 +239,9 @@ class Material extends Model
         'video_file' => ['System\Models\File'],
         'document_file' => ['System\Models\File']
     ];
-    public $attachMany = [];
+    public $attachMany = [
+        'gallery' => ['System\Models\File']
+    ];
 
     /**
      * Scope for getting all materials for a specific topic
@@ -189,5 +297,76 @@ class Material extends Model
                 $topicQ->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%']);
             });
         });
+    }
+
+    /**
+     * Get keyword suggestions for autocomplete functionality
+     * 
+     * Returns unique keywords from materials that match the search query.
+     * Only returns actual keywords, sorted by frequency of use.
+     * 
+     * @param string $query The search query to match against
+     * @param int $limit Maximum number of suggestions to return
+     * @return array Array of unique keyword suggestions
+     */
+    public static function getKeywordSuggestions($query, $limit = 10)
+    {
+        if (empty($query) || strlen(trim($query)) < 2) {
+            return [];
+        }
+
+        $query = strtolower(trim($query));
+        
+        try {
+            // Get materials with keywords
+            $materialsWithKeywords = self::whereNotNull('keywords')->get();
+            
+            if ($materialsWithKeywords->count() === 0) {
+                return [];
+            }
+            
+            // Collect all keywords
+            $allKeywords = [];
+            foreach ($materialsWithKeywords as $material) {
+                $keywords = $material->keywords;
+                
+                if (is_array($keywords)) {
+                    foreach ($keywords as $keyword) {
+                        if (!empty(trim($keyword))) {
+                            $allKeywords[] = trim($keyword);
+                        }
+                    }
+                } elseif (is_string($keywords) && !empty($keywords)) {
+                    // Handle string keywords (comma-separated or single)
+                    $keywordArray = explode(',', $keywords);
+                    foreach ($keywordArray as $keyword) {
+                        if (!empty(trim($keyword))) {
+                            $allKeywords[] = trim($keyword);
+                        }
+                    }
+                }
+            }
+            
+            $uniqueKeywords = array_unique($allKeywords);
+            
+            if (empty($uniqueKeywords)) {
+                return [];
+            }
+            
+            // Filter keywords that contain the query
+            $matchingKeywords = array_filter($uniqueKeywords, function($keyword) use ($query) {
+                return stripos($keyword, $query) !== false;
+            });
+            
+            // Sort alphabetically and return results
+            $matchingKeywords = array_values($matchingKeywords);
+            sort($matchingKeywords);
+            
+            return array_slice($matchingKeywords, 0, $limit);
+            
+        } catch (\Exception $e) {
+            \Log::error('Material keyword suggestions error: ' . $e->getMessage());
+            return [];
+        }
     }
 }

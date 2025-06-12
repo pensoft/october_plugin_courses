@@ -23,6 +23,14 @@ columns:
         label: Type
         searchable: true
         
+    target_audience:
+        label: Target Audience
+        searchable: true
+        
+    author:
+        label: Author
+        searchable: true
+        
     duration:
         label: Duration
         searchable: true
@@ -32,6 +40,15 @@ columns:
         relation: lesson
         select: name
         searchable: true
+        
+    download_possible:
+        label: Download
+        type: switch
+        
+    date_of_creation:
+        label: Date Created
+        type: datetime
+        invisible: true
         
     sort_order:
         label: Sort Order

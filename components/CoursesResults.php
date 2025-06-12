@@ -69,28 +69,46 @@ class CoursesResults extends ComponentBase
             // Build query directly using Material model
             $query = Material::with(['lesson', 'lesson.block', 'lesson.block.topic', 'cover']);
             
-            // Apply filters
-            if ($language) {
+            // Add a basic where clause to ensure we only get materials with valid lessons
+            $query->whereHas('lesson');
+            
+            // Apply filters only if they have actual values
+            if ($language && $language !== '') {
                 $query->where('language', $language);
             }
             
-            if ($level) {
+            if ($level && $level !== '') {
                 $query->whereHas('lesson.block', function($q) use ($level) {
                     $q->where('level', $level);
                 });
             }
             
-            if ($department) {
-                $query->whereHas('lesson', function($q) use ($department) {
-                    $q->where('department', $department);
+            if ($department && $department !== '') {
+                // Filter by topic's institution field with flexible matching
+                $query->whereHas('lesson.block.topic', function($q) use ($department) {
+                    $q->where(function($subQ) use ($department) {
+                        // Try exact match first
+                        $subQ->where('institution', '=', $department)
+                        // Try case-insensitive match
+                        ->orWhereRaw('LOWER(TRIM(institution)) = LOWER(TRIM(?))', [$department])
+                        // Try partial match in case of extra text
+                        ->orWhereRaw('LOWER(institution) LIKE LOWER(?)', ['%' . $department . '%'])
+                        // Try if institution field contains partner ID and we need to join
+                        ->orWhereExists(function($existsQ) use ($department) {
+                            $existsQ->select(\DB::raw(1))
+                                ->from('pensoft_partners_partners as p')
+                                ->whereRaw('p.id::text = pensoft_courses_topics.institution')
+                                ->where('p.instituion', $department);
+                        });
+                    });
                 });
             }
             
-            if ($type) {
+            if ($type && $type !== '') {
                 $query->where('type', $type);
             }
             
-            if ($topic) {
+            if ($topic && $topic !== '') {
                 $topic = urldecode($topic);
                 
                 $query->whereHas('lesson.block.topic', function($q) use ($topic) {
@@ -98,13 +116,14 @@ class CoursesResults extends ComponentBase
                 });
             }
             
-            if ($search) {
+            if ($search && $search !== '') {
                 // Use the hierarchical search scope from Material model
                 $query->hierarchicalSearch($search);
             }
             
             // Get paginated results
             $materials = $query->paginate($perPage);
+
             
             // Add computed cover paths to the materials
             foreach ($materials->items() as $material) {
@@ -139,10 +158,27 @@ class CoursesResults extends ComponentBase
                 '#pagination-container' => $this->renderPartial('components/resource-pagination', ['pagination' => $results['meta']['pagination'] ?? null])
             ];
         } catch (\Exception $e) {
-            $this->page['error'] = $e->getMessage();
+            // Log the technical error details for debugging
+            \Log::error('CoursesResults filtering error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'filters' => [
+                    'language' => $language,
+                    'level' => $level,
+                    'department' => $department,
+                    'type' => $type,
+                    'topic' => $topic,
+                    'search' => $search,
+                    'page' => $page,
+                    'perPage' => $perPage
+                ],
+                'user_agent' => request()->header('User-Agent'),
+                'ip' => request()->ip()
+            ]);
             
+            // Return user-friendly error message
             return [
-                '#results-container' => '<div class="error-message"><p>Error loading results: ' . e($e->getMessage()) . '</p></div>',
+                '#results-container' => '<div class="error-message"><p>We\'re sorry, but there was an issue loading the search results. Please try again or adjust your filters.</p></div>',
                 '#pagination-container' => ''
             ];
         }

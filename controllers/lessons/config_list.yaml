@@ -19,4 +19,8 @@ toolbar:
     search:
         prompt: backend::lang.list.search_prompt
 
-recordUrl: pensoft/courses/lessons/update/:id 
+recordUrl: pensoft/courses/lessons/update/:id
+
+defaultSort:
+    column: sort_order
+    direction: asc 
