@@ -1,4 +1,0 @@
-title: Reorder Block Levels
-modelClass: Pensoft\Courses\Models\Setting
-toolbar:
-    buttons: reorder_toolbar_levels 

@@ -2,7 +2,7 @@
 
 use Cms\Classes\ComponentBase;
 use Pensoft\Courses\Models\Topic;
-use Pensoft\Courses\Models\Setting;
+use Pensoft\Courses\Models\Block;
 use Pensoft\Courses\Models\Material;
 use Pensoft\Courses\Models\Language;
 use Pensoft\Partners\Models\Partners;
@@ -38,8 +38,8 @@ class CoursesResults extends ComponentBase
         $this->page['topics'] = Topic::all();
         
         // Add filter data for the reusable component
-        $this->page['blockLevels'] = Setting::getBlockLevelOptions();
-        $this->page['materialTypes'] = Setting::getMaterialTypeOptions();
+        $this->page['blockLevels'] = Block::getLevelOptions();
+        $this->page['materialTypes'] = Material::getTypeOptions();
         
         // Languages including custom languages like Valencian
         $this->page['languages'] = Language::getLanguageOptions();

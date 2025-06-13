@@ -2,7 +2,8 @@
 
 use Cms\Classes\ComponentBase;
 use Pensoft\Courses\Models\Topic;
-use Pensoft\Courses\Models\Setting;
+use Pensoft\Courses\Models\Block;
+use Pensoft\Courses\Models\Material;
 use Pensoft\Courses\Models\Language;
 use Pensoft\Partners\Models\Partners;
 use RainLab\Location\Models\Country;
@@ -57,8 +58,8 @@ class TopicDetails extends ComponentBase
         $this->prevTopic = Topic::where('id', '<', $this->topic->id)->orderBy('id', 'desc')->first();
         
         // Get filter options dynamically
-        $this->page['blockLevels'] = Setting::getBlockLevelOptions();
-        $this->page['materialTypes'] = Setting::getMaterialTypeOptions();
+        $this->page['blockLevels'] = Block::getLevelOptions();
+        $this->page['materialTypes'] = Material::getTypeOptions();
         
         // Languages including custom languages like Valencian
         $this->page['languages'] = Language::getLanguageOptions();

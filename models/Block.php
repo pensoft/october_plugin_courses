@@ -15,6 +15,12 @@ class Block extends Model
     use Sortable;
 
     /**
+     * Block levels
+     */
+    const LEVEL_BASIC = 'basic';
+    const LEVEL_ADVANCED = 'advanced';
+
+    /**
      * @var string table associated with the model
      */
     public $table = 'pensoft_courses_blocks';
@@ -95,11 +101,14 @@ class Block extends Model
     public $attachMany = [];
 
     /**
-     * Get level options from settings
+     * Get level options for dropdown
      */
-    public function getLevelOptions()
+    public static function getLevelOptions()
     {
-        return \Pensoft\Courses\Models\Setting::getBlockLevelOptions();
+        return [
+            self::LEVEL_BASIC => 'Basic',
+            self::LEVEL_ADVANCED => 'Advanced'
+        ];
     }
 
     /**

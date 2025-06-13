@@ -15,6 +15,43 @@ class Material extends Model
     use Sortable;
 
     /**
+     * Material types
+     */
+    const TYPE_INTERACTIVE_PRESENTATION = 'interactive_presentation_h5p';
+    const TYPE_VIDEO_TOUR = 'video_tour';
+    const TYPE_VIDEO = 'video';
+    const TYPE_VIRTUAL_REALITY_TOUR = 'virtual_reality_tour';
+    const TYPE_PODCAST = 'podcast';
+    const TYPE_TEXTBOOK_CHAPTER = 'textbook_chapter';
+    const TYPE_WORKSHEET = 'worksheet';
+    const TYPE_PHOTO_GALLERY = 'photo_gallery';
+    const TYPE_IMAGE = 'image';
+    const TYPE_GUIDELINE = 'guideline';
+    const TYPE_STANDARD_OF_PRACTICE = 'standard_of_practice';
+    const TYPE_DOCUMENT = 'document';
+    const TYPE_EVALUATION = 'evaluation';
+
+    /**
+     * Target audiences
+     */
+    const TARGET_AUDIENCE_ARCHITECTS = 'architects';
+    const TARGET_AUDIENCE_ENGINEERS = 'engineers';
+    const TARGET_AUDIENCE_ENVIRONMENTAL_EDUCATORS = 'environmental_educators';
+    const TARGET_AUDIENCE_TEACHERS = 'teachers';
+    const TARGET_AUDIENCE_FARMERS = 'farmers';
+    const TARGET_AUDIENCE_FORESTERS = 'foresters';
+    const TARGET_AUDIENCE_LANDSCAPE_GARDENERS = 'landscape_gardeners';
+    const TARGET_AUDIENCE_NGOS = 'ngos';
+    const TARGET_AUDIENCE_POLICYMAKERS = 'policymakers';
+    const TARGET_AUDIENCE_RESTORATION_PRACTITIONERS = 'restoration_practitioners';
+    const TARGET_AUDIENCE_STUDENTS = 'students';
+    const TARGET_AUDIENCE_URBAN_PLANNER = 'urban_planner';
+    const TARGET_AUDIENCE_LOCAL_COMMUNITY = 'local_community';
+    const TARGET_AUDIENCE_INDIGENOUS_NATIVE_GROUP = 'indigenous_native_group';
+    const TARGET_AUDIENCE_UNDERREPRESENTED_GROUPS = 'underrepresented_groups';
+
+    
+    /**
      * @var string table associated with the model
      */
     public $table = 'pensoft_courses_materials';
@@ -146,27 +183,12 @@ class Material extends Model
         return [];
     }
 
-    /**
-     * Material types
-     */
-    const TYPE_INTERACTIVE_PRESENTATION = 'interactive_presentation_h5p';
-    const TYPE_VIDEO_TOUR = 'video_tour';
-    const TYPE_VIRTUAL_REALITY_TOUR = 'virtual_reality_tour';
-    const TYPE_PODCAST = 'podcast';
-    const TYPE_TEXTBOOK_CHAPTER = 'textbook_chapter';
-    const TYPE_WORKSHEET = 'worksheet';
-    const TYPE_PHOTO_GALLERY = 'photo_gallery';
-    const TYPE_IMAGE = 'image';
-    const TYPE_GUIDELINE = 'guideline';
-    const TYPE_STANDARD_OF_PRACTICE = 'standard_of_practice';
-    const TYPE_DOCUMENT = 'document';
-    const TYPE_EVALUATION = 'evaluation';
-
-    public function getTypeOptions()
+    public static function getTypeOptions()
     {
         return [
             self::TYPE_INTERACTIVE_PRESENTATION => 'Interactive Presentation (H5P)',
             self::TYPE_VIDEO_TOUR => 'Video Tour',
+            self::TYPE_VIDEO => 'Video',
             self::TYPE_VIRTUAL_REALITY_TOUR => 'Virtual Reality Tour',
             self::TYPE_PODCAST => 'Podcast',
             self::TYPE_TEXTBOOK_CHAPTER => 'Textbook Chapter',
@@ -191,24 +213,24 @@ class Material extends Model
     /**
      * Returns options for target audience dropdown (legacy field)
      */
-    public function getTargetAudienceOptions()
+    public static function getTargetAudienceOptions()
     {
         return [
-            'architects' => 'Architects',
-            'engineers' => 'Engineers',
-            'environmental_educators' => 'Environmental Educators',
-            'teachers' => 'Teachers',
-            'farmers' => 'Farmers',
-            'foresters' => 'Foresters',
-            'landscape_gardeners' => 'Landscape Gardeners',
-            'ngos' => 'NGOs',
-            'policymakers' => 'Policymakers',
-            'restoration_practitioners' => 'Restoration Practitioners',
-            'students' => 'Students',
-            'urban_planner' => 'Urban Planner',
-            'local_community' => 'Local Community',
-            'indigenous_native_group' => 'Indigenous / Native Group',
-            'underrepresented_groups' => 'Underrepresented Groups'
+            self::TARGET_AUDIENCE_ARCHITECTS => 'Architects',
+            self::TARGET_AUDIENCE_ENGINEERS => 'Engineers',
+            self::TARGET_AUDIENCE_ENVIRONMENTAL_EDUCATORS => 'Environmental Educators',
+            self::TARGET_AUDIENCE_TEACHERS => 'Teachers',
+            self::TARGET_AUDIENCE_FARMERS => 'Farmers',
+            self::TARGET_AUDIENCE_FORESTERS => 'Foresters',
+            self::TARGET_AUDIENCE_LANDSCAPE_GARDENERS => 'Landscape Gardeners',
+            self::TARGET_AUDIENCE_NGOS => 'NGOs',
+            self::TARGET_AUDIENCE_POLICYMAKERS => 'Policymakers',
+            self::TARGET_AUDIENCE_RESTORATION_PRACTITIONERS => 'Restoration Practitioners',
+            self::TARGET_AUDIENCE_STUDENTS => 'Students',
+            self::TARGET_AUDIENCE_URBAN_PLANNER => 'Urban Planner',
+            self::TARGET_AUDIENCE_LOCAL_COMMUNITY => 'Local Community',
+            self::TARGET_AUDIENCE_INDIGENOUS_NATIVE_GROUP => 'Indigenous / Native Group',
+            self::TARGET_AUDIENCE_UNDERREPRESENTED_GROUPS => 'Underrepresented Groups'
         ];
     }
 
@@ -217,7 +239,7 @@ class Material extends Model
      */
     public function getTargetAudiencesOptions()
     {
-        return $this->getTargetAudienceOptions();
+        return self::getTargetAudienceOptions();
     }
 
     /**

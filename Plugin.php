@@ -41,6 +41,9 @@ class Plugin extends PluginBase
      */
     public function boot()
     {
+        // Register download routes with CSRF protection
+        Route::post('api/courses/download-gallery', 'Pensoft\Courses\Controllers\Downloads@downloadGallery')
+            ->middleware('web');
     }
 
     /**
@@ -94,10 +97,6 @@ class Plugin extends PluginBase
                 'tab' => 'Courses',
                 'label' => 'Manage course materials'
             ],
-            'pensoft.courses.access_settings' => [
-                'tab' => 'Courses',
-                'label' => 'Manage course settings'
-            ],
         ];
     }
 
@@ -133,32 +132,6 @@ class Plugin extends PluginBase
                         'url'         => Backend::url('pensoft/courses/lessons'),
                         'icon'        => 'icon-book',
                         'permissions' => ['pensoft.courses.access_lessons'],
-                    ],
-                    'settings' => [
-                        'label'       => 'Settings',
-                        'url'         => Backend::url('pensoft/courses/settings'),
-                        'icon'        => 'icon-cog',
-                        'permissions' => ['pensoft.courses.access_settings'],
-                        'sideMenu' => [
-                            'general' => [
-                                'label'       => 'Overview',
-                                'url'         => Backend::url('pensoft/courses/settings'),
-                                'icon'        => 'icon-dashboard',
-                                'permissions' => ['pensoft.courses.access_settings'],
-                            ],
-                            'levels' => [
-                                'label'       => 'Levels',
-                                'url'         => Backend::url('pensoft/courses/settings/levels'),
-                                'icon'        => 'icon-signal',
-                                'permissions' => ['pensoft.courses.access_settings'],
-                            ],
-                            'materialtypes' => [
-                                'label'       => 'Material Types',
-                                'url'         => Backend::url('pensoft/courses/settings/materialtypes'),
-                                'icon'        => 'icon-file-text-o',
-                                'permissions' => ['pensoft.courses.access_settings'],
-                            ],
-                        ]
                     ]
                 ]
             ],

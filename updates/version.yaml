@@ -31,3 +31,5 @@
 1.0.11:
     - Convert target audience to multiple selection (JSON) and add gallery support
     - update_materials_table_4.php
+1.0.12:
+    - Material types reorganization, download zip controller, new material options

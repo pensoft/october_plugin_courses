@@ -71,7 +71,7 @@ fields:
         required: true
         comment: Keywords for search functionality (press enter to add each keyword)
     
-    # YouTube URL field - only shown for video tour type
+    # YouTube URL field - only shown for video tour and video types
     youtube_url:
         label: YouTube URL
         type: text
@@ -80,9 +80,9 @@ fields:
         trigger:
             action: show
             field: type
-            condition: value[video_tour]
+            condition: value[video_tour] value[video]
             
-    # Video file upload - only shown for video tour type  
+    # Video file upload - only shown for video tour and video types  
     video_file:
         label: Video File
         type: fileupload
@@ -93,7 +93,7 @@ fields:
         trigger:
             action: show
             field: type
-            condition: value[video_tour]
+            condition: value[video_tour] value[video]
     
     # H5P/Quiz field - shown for interactive presentation, evaluation, and virtual reality tour types
     quiz:
