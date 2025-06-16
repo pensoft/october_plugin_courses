@@ -114,7 +114,7 @@ class Material extends Model
     /**
      * @var array appends attributes to the API representation of the model (ex. toArray())
      */
-    protected $appends = [];
+    protected $appends = ['cover_url'];
 
     /**
      * @var array hidden attributes removed from the API representation of the model (ex. toArray())
@@ -390,5 +390,14 @@ class Material extends Model
             \Log::error('Material keyword suggestions error: ' . $e->getMessage());
             return [];
         }
+    }
+
+    /**
+     * Accessor for cover URL
+     * Returns the file path for the cover image if it exists
+     */
+    public function getCoverUrlAttribute()
+    {
+        return $this->cover ? $this->cover->getPath() : null;
     }
 }

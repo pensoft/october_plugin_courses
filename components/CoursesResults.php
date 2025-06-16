@@ -62,8 +62,6 @@ class CoursesResults extends ComponentBase
         $type = input('type');
         $topic = input('topic');
         $search = input('search') ?: input('q');
-        $page = input('page', 1);
-        $perPage = input('per_page', 15);
         
         try {
             // Build query directly using Material model
@@ -121,30 +119,12 @@ class CoursesResults extends ComponentBase
                 $query->hierarchicalSearch($search);
             }
             
-            // Get paginated results
-            $materials = $query->paginate($perPage);
+            // Get all results without pagination
+            $materials = $query->get();
 
-            
-            // Add computed cover paths to the materials
-            foreach ($materials->items() as $material) {
-                if ($material->cover) {
-                    $material->cover_url = $material->cover->getPath();
-                }
-            }
-            
-            // Convert to array format that matches the original API response
+            // Convert to array format without pagination metadata
             $results = [
-                'data' => $materials->items(),
-                'meta' => [
-                    'pagination' => [
-                        'total' => $materials->total(),
-                        'per_page' => $materials->perPage(),
-                        'current_page' => $materials->currentPage(),
-                        'last_page' => $materials->lastPage(),
-                        'from' => $materials->firstItem(),
-                        'to' => $materials->lastItem()
-                    ]
-                ]
+                'data' => $materials->toArray()
             ];
             
             // Group materials by topic and blocks
@@ -154,8 +134,7 @@ class CoursesResults extends ComponentBase
             $this->page['groupedResults'] = $groupedResults;
             
             return [
-                '#results-container' => $this->renderPartial('components/grouped-resource-results', ['groupedResults' => $groupedResults]),
-                '#pagination-container' => $this->renderPartial('components/resource-pagination', ['pagination' => $results['meta']['pagination'] ?? null])
+                '#results-container' => $this->renderPartial('components/grouped-resource-results', ['groupedResults' => $groupedResults])
             ];
         } catch (\Exception $e) {
             // Log the technical error details for debugging
@@ -168,9 +147,7 @@ class CoursesResults extends ComponentBase
                     'department' => $department,
                     'type' => $type,
                     'topic' => $topic,
-                    'search' => $search,
-                    'page' => $page,
-                    'perPage' => $perPage
+                    'search' => $search
                 ],
                 'user_agent' => request()->header('User-Agent'),
                 'ip' => request()->ip()
@@ -178,8 +155,7 @@ class CoursesResults extends ComponentBase
             
             // Return user-friendly error message
             return [
-                '#results-container' => '<div class="error-message"><p>We\'re sorry, but there was an issue loading the search results. Please try again or adjust your filters.</p></div>',
-                '#pagination-container' => ''
+                '#results-container' => '<div class="error-message"><p>We\'re sorry, but there was an issue loading the search results. Please try again or adjust your filters.</p></div>'
             ];
         }
     }
