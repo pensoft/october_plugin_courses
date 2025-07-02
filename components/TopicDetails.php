@@ -53,6 +53,9 @@ class TopicDetails extends ComponentBase
             return $this->controller->run('404');
         }
         
+        // Sort materials within each block by prefix
+        $this->sortMaterialsByPrefix($this->topic->blocks);
+        
         // Get next and previous topics for navigation
         $this->nextTopic = Topic::where('id', '>', $this->topic->id)->orderBy('id', 'asc')->first();
         $this->prevTopic = Topic::where('id', '<', $this->topic->id)->orderBy('id', 'desc')->first();
@@ -116,8 +119,49 @@ class TopicDetails extends ComponentBase
         
         $blocks = $query->get();
         
+        // Sort materials within each block by prefix
+        $this->sortMaterialsByPrefix($blocks);
+        
         return [
             '#blocks-container' => $this->renderPartial('blocks-list', ['blocks' => $blocks])
         ];
+    }
+
+    /**
+     * Sort materials within blocks by their prefix using version_compare
+     * This ensures proper ordering like 1.1 > 1.2 > 1.12 instead of alphabetical
+     */
+    protected function sortMaterialsByPrefix($blocks)
+    {
+        foreach ($blocks as $block) {
+            foreach ($block->lessons as $lesson) {
+                if ($lesson->materials && $lesson->materials->count() > 0) {
+                    $materialsArray = $lesson->materials->all();
+                    
+                    usort($materialsArray, function($a, $b) {
+                        $prefixA = $a->prefix ?? '';
+                        $prefixB = $b->prefix ?? '';
+                        
+                        // Handle empty prefixes - put them at the end
+                        if (empty($prefixA) && empty($prefixB)) {
+                            return 0;
+                        }
+                        if (empty($prefixA)) {
+                            return 1;
+                        }
+                        if (empty($prefixB)) {
+                            return -1;
+                        }
+                        
+                        // Use version_compare for natural sorting of version-like strings
+                        // This will properly sort 1.1, 1.2, 1.12, etc.
+                        return version_compare($prefixA, $prefixB);
+                    });
+                    
+                    // Replace the collection with sorted array
+                    $lesson->setRelation('materials', collect($materialsArray));
+                }
+            }
+        }
     }
 } 

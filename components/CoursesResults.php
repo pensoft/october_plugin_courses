@@ -6,8 +6,6 @@ use Pensoft\Courses\Models\Block;
 use Pensoft\Courses\Models\Material;
 use Pensoft\Courses\Models\Language;
 use Pensoft\Partners\Models\Partners;
-use RainLab\Location\Models\Country;
-use Input;
 
 class CoursesResults extends ComponentBase
 {
@@ -122,9 +120,9 @@ class CoursesResults extends ComponentBase
             // Get all results without pagination
             $materials = $query->get();
 
-            // Convert to array format without pagination metadata
+            // Keep as collection to preserve Eloquent model functionality
             $results = [
-                'data' => $materials->toArray()
+                'data' => $materials
             ];
             
             // Group materials by topic and blocks
@@ -165,7 +163,7 @@ class CoursesResults extends ComponentBase
         $grouped = [];
         
         // Always return grouped structure, even if empty
-        if (!isset($results['data']) || !is_array($results['data']) || empty($results['data'])) {
+        if (!isset($results['data']) || empty($results['data'])) {
             return $grouped;
         }
         
@@ -177,16 +175,16 @@ class CoursesResults extends ComponentBase
             $blockId = 'unknown';
             
             // Extract topic and block info from material relationships
-            if (isset($material['lesson']['block']['topic'])) {
-                $topic = $material['lesson']['block']['topic'];
-                $topicName = $topic['name'] ?? 'Unknown Topic';
-                $topicSlug = $topic['slug'] ?? 'unknown';
+            if ($material->lesson && $material->lesson->block && $material->lesson->block->topic) {
+                $topic = $material->lesson->block->topic;
+                $topicName = $topic->name ?? 'Unknown Topic';
+                $topicSlug = $topic->slug ?? 'unknown';
             }
             
-            if (isset($material['lesson']['block'])) {
-                $block = $material['lesson']['block'];
-                $blockName = $block['name'] ?? 'Unknown Block';
-                $blockId = $block['id'] ?? 'unknown';
+            if ($material->lesson && $material->lesson->block) {
+                $block = $material->lesson->block;
+                $blockName = $block->name ?? 'Unknown Block';
+                $blockId = $block->id ?? 'unknown';
             }
             
             // Initialize topic if not exists
@@ -209,6 +207,33 @@ class CoursesResults extends ComponentBase
             
             // Add material to the block
             $grouped[$topicSlug]['blocks'][$blockId]['materials'][] = $material;
+        }
+        
+        // Sort materials within each block by prefix using version_compare
+        foreach ($grouped as $topicSlug => &$topic) {
+            foreach ($topic['blocks'] as $blockId => &$block) {
+                if (!empty($block['materials'])) {
+                    usort($block['materials'], function($a, $b) {
+                        $prefixA = $a->prefix ?? '';
+                        $prefixB = $b->prefix ?? '';
+                        
+                        // Handle empty prefixes - put them at the end
+                        if (empty($prefixA) && empty($prefixB)) {
+                            return 0;
+                        }
+                        if (empty($prefixA)) {
+                            return 1;
+                        }
+                        if (empty($prefixB)) {
+                            return -1;
+                        }
+                        
+                        // Use version_compare for natural sorting of version-like strings
+                        // This will properly sort 1.1, 1.2, 1.12, etc.
+                        return version_compare($prefixA, $prefixB);
+                    });
+                }
+            }
         }
         
         return $grouped;

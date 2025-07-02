@@ -35,3 +35,5 @@
     - Material types reorganization, download zip controller, new material options
 1.0.13:
     - Removed pagination from courses results
+1.0.14:
+    - Fixed image data
