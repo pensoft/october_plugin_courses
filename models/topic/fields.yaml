@@ -31,6 +31,12 @@ tabs:
             emptyOption: -- Select Institution --
             tab: Details
             
+        topic_introduction:
+            label: Topic Introduction
+            span: right
+            type: richeditor
+            tab: Details
+            
 
         blocks:
             label: Course Blocks

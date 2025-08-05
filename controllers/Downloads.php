@@ -17,11 +17,131 @@ use Log;
 class Downloads extends Controller
 {
     // Configuration constants
-    const MAX_FILES = 50;
+    const MAX_FILES = 100;
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB per file
     const MAX_TOTAL_SIZE = 100 * 1024 * 1024; // 100MB total
     const DOWNLOAD_TIMEOUT = 30; // 30 seconds per file
     const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+
+    /**
+     * Download block materials as zip
+     */
+    public function downloadBlock(Request $request)
+    {
+        try {
+            // Get JSON input
+            $input = json_decode($request->getContent(), true);
+            
+            // Validate input
+            $validator = Validator::make($input, [
+                'block_id' => 'required|string|max:255',
+                'block_name' => 'required|string|max:255',
+                'materials' => 'required|array|max:' . self::MAX_FILES,
+                'materials.*.id' => 'required|string|max:255',
+                'materials.*.name' => 'required|string|max:255',
+                'materials.*.resources' => 'required|array',
+                'materials.*.resources.*.url' => 'required|url|max:2048',
+                'materials.*.resources.*.type' => 'required|string|in:cover,video,document,gallery',
+                'materials.*.resources.*.name' => 'required|string|max:255'
+            ]);
+
+            if ($validator->fails()) {
+                return Response::json(['error' => 'Invalid input data'], 400);
+            }
+
+            $blockId = $input['block_id'];
+            $blockName = $input['block_name'];
+            $materials = $input['materials'];
+
+            // Create a temporary directory for this download
+            $tempDir = storage_path('temp/block_' . uniqid());
+            if (!File::exists($tempDir)) {
+                File::makeDirectory($tempDir, 0755, true);
+            }
+
+            $downloadedFiles = [];
+            $totalSize = 0;
+            
+            foreach ($materials as $material) {
+                $materialDir = $tempDir . '/' . $this->sanitizeFileName($material['name']);
+                if (!File::exists($materialDir)) {
+                    File::makeDirectory($materialDir, 0755, true);
+                }
+
+                foreach ($material['resources'] as $resource) {
+                    try {
+                        // Validate resource URL
+                        if (!$this->isValidResourceUrl($resource['url'], $resource['type'])) {
+                            Log::warning("Invalid resource URL, skipping: {$resource['url']}");
+                            continue;
+                        }
+
+                        $resourceData = $this->downloadResourceSafely($resource['url']);
+                        if ($resourceData !== false) {
+                            // Check file size
+                            if (strlen($resourceData) > self::MAX_FILE_SIZE) {
+                                Log::warning("Resource too large, skipping: {$resource['url']}");
+                                continue;
+                            }
+
+                            $totalSize += strlen($resourceData);
+                            if ($totalSize > self::MAX_TOTAL_SIZE) {
+                                Log::warning("Total size limit exceeded, stopping download");
+                                break 2; // Break both loops
+                            }
+
+                            // Get file extension and create filename
+                            $extension = $this->getResourceExtension($resource['url'], $resource['type']);
+                            $fileName = $this->sanitizeFileName($resource['name']) . '.' . $extension;
+                            $filePath = $materialDir . '/' . $fileName;
+                            
+                            file_put_contents($filePath, $resourceData);
+                            $downloadedFiles[] = $filePath;
+                        }
+                    } catch (Exception $e) {
+                        Log::warning("Failed to download resource: {$resource['url']}. Error: " . $e->getMessage());
+                        continue;
+                    }
+                }
+            }
+
+            if (empty($downloadedFiles)) {
+                $this->cleanupTempDir($tempDir);
+                return Response::json(['error' => 'No resources could be downloaded'], 400);
+            }
+
+            // Create zip file
+            $zipFileName = $this->sanitizeFileName($blockName) . '_materials.zip';
+            $zipPath = $tempDir . '/' . $zipFileName;
+            
+            $zip = new ZipArchive();
+            if ($zip->open($zipPath, ZipArchive::CREATE) !== TRUE) {
+                $this->cleanupTempDir($tempDir);
+                return Response::json(['error' => 'Could not create zip file'], 500);
+            }
+
+            // Add files to zip with proper folder structure
+            foreach ($downloadedFiles as $filePath) {
+                $relativePath = str_replace($tempDir . '/', '', $filePath);
+                $zip->addFile($filePath, $relativePath);
+            }
+            $zip->close();
+
+            // Serve the zip file
+            $response = Response::download($zipPath, $zipFileName)->deleteFileAfterSend(true);
+            
+            // Clean up temp directory after a delay
+            register_shutdown_function(function() use ($tempDir) {
+                $this->cleanupTempDir($tempDir);
+            });
+
+            return $response;
+
+        } catch (Exception $e) {
+            Log::error('Block download failed: ' . $e->getMessage());
+            return Response::json(['error' => 'Download failed'], 500);
+        }
+    }
 
     /**
      * Download gallery as zip
@@ -174,9 +294,9 @@ class Downloads extends Controller
     }
 
     /**
-     * Validate if URL is a safe image URL
+     * Validate if URL is a safe resource URL
      */
-    private function isValidImageUrl($url)
+    private function isValidResourceUrl($url, $type)
     {
         // Parse URL
         $parsed = parse_url($url);
@@ -201,6 +321,22 @@ class Downloads extends Controller
         return true;
     }
 
+    /**
+     * Validate if URL is a safe image URL (legacy method for backward compatibility)
+     */
+    private function isValidImageUrl($url)
+    {
+        return $this->isValidResourceUrl($url, 'image');
+    }
+
+    /**
+     * Download resource safely with timeout and size limits
+     */
+    private function downloadResourceSafely($url)
+    {
+        return $this->downloadImageSafely($url); // Reuse existing method
+    }
+
 
 
     /**
@@ -213,6 +349,33 @@ class Downloads extends Controller
         
         // If no extension or invalid extension, try to detect from content-type later
         return in_array($extension, self::ALLOWED_EXTENSIONS) ? $extension : 'jpg';
+    }
+
+    /**
+     * Get appropriate file extension based on resource type and URL
+     */
+    private function getResourceExtension($url, $type)
+    {
+        $path = parse_url($url, PHP_URL_PATH);
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        
+        // If we have a valid extension, use it
+        if ($extension) {
+            return $extension;
+        }
+        
+        // Otherwise, provide defaults based on resource type
+        switch ($type) {
+            case 'cover':
+            case 'gallery':
+                return 'jpg';
+            case 'video':
+                return 'mp4';
+            case 'document':
+                return 'pdf';
+            default:
+                return 'bin'; // generic binary file
+        }
     }
 
     /**

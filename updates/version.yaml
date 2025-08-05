@@ -37,3 +37,6 @@
     - Removed pagination from courses results
 1.0.14:
     - Fixed image data
+1.0.15:
+    - Add introduction field to topics table
+    - update_topics_table_3.php

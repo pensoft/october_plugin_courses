@@ -44,6 +44,8 @@ class Plugin extends PluginBase
         // Register download routes with CSRF protection
         Route::post('api/courses/download-gallery', 'Pensoft\Courses\Controllers\Downloads@downloadGallery')
             ->middleware('web');
+        Route::post('api/courses/download-block', 'Pensoft\Courses\Controllers\Downloads@downloadBlock')
+            ->middleware('web');
     }
 
     /**

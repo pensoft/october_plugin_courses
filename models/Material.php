@@ -30,6 +30,7 @@ class Material extends Model
     const TYPE_STANDARD_OF_PRACTICE = 'standard_of_practice';
     const TYPE_DOCUMENT = 'document';
     const TYPE_EVALUATION = 'evaluation';
+    const TYPE_PRESENTATION = 'presentation';
 
     /**
      * Target audiences
@@ -198,7 +199,8 @@ class Material extends Model
             self::TYPE_GUIDELINE => 'Guideline',
             self::TYPE_STANDARD_OF_PRACTICE => 'Standard of Practice',
             self::TYPE_DOCUMENT => 'Document',
-            self::TYPE_EVALUATION => 'Evaluation'
+            self::TYPE_EVALUATION => 'Evaluation',
+            self::TYPE_PRESENTATION => 'Presentation'
         ];
     }
 
@@ -301,7 +303,7 @@ class Material extends Model
             $q->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%'])
               ->orWhereRaw('LOWER(description) LIKE ?', ['%' . $searchTerm . '%']);
               
-            // Search in keywords JSON field (PostgreSQL)
+            // Search in keywords JSON field
             $q->orWhereRaw('EXISTS (SELECT 1 FROM json_array_elements_text(keywords::json) AS keyword WHERE LOWER(keyword) LIKE ?)', ['%' . $searchTerm . '%']);
             
             // Search in parent lesson names
