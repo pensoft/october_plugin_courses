@@ -1,0 +1,6 @@
+title: Reorder Materials
+modelClass: Pensoft\Courses\Models\Material
+nameFrom: reorder_label
+toolbar:
+    buttons: reorder_toolbar
+

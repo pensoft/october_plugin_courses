@@ -6,7 +6,7 @@ materials:
         recordsPerPage: 10
         showCheckboxes: true
         showSorting: true
-        defaultSort: created_at desc
+        defaultSort: sort_order asc
     manage:
         form: $/pensoft/courses/models/material/fields.yaml
         recordsPerPage: 10

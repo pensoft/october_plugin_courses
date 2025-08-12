@@ -43,3 +43,5 @@
 1.0.16:
     - Add SlideShare embed URL to materials table
     - update_materials_table_5.php
+1.0.17:
+    - Add reorder materials functionality

@@ -209,27 +209,46 @@ class CoursesResults extends ComponentBase
             $grouped[$topicSlug]['blocks'][$blockId]['materials'][] = $material;
         }
         
-        // Sort materials within each block by prefix using version_compare
+        // Sort materials within each block with priorities:
+        // 1) lesson.sort_order asc
+        // 2) material.sort_order asc
+        // 3) fallback to natural version-like sort by prefix
         foreach ($grouped as $topicSlug => &$topic) {
             foreach ($topic['blocks'] as $blockId => &$block) {
                 if (!empty($block['materials'])) {
                     usort($block['materials'], function($a, $b) {
+                        $lessonOrderA = isset($a->lesson) && (int)($a->lesson->sort_order ?? 0) > 0
+                            ? (int) $a->lesson->sort_order
+                            : PHP_INT_MAX;
+                        $lessonOrderB = isset($b->lesson) && (int)($b->lesson->sort_order ?? 0) > 0
+                            ? (int) $b->lesson->sort_order
+                            : PHP_INT_MAX;
+
+                        if ($lessonOrderA !== $lessonOrderB) {
+                            return $lessonOrderA <=> $lessonOrderB;
+                        }
+
+                        $materialOrderA = (int)($a->sort_order ?? 0) > 0 ? (int) $a->sort_order : PHP_INT_MAX;
+                        $materialOrderB = (int)($b->sort_order ?? 0) > 0 ? (int) $b->sort_order : PHP_INT_MAX;
+
+                        if ($materialOrderA !== $materialOrderB) {
+                            return $materialOrderA <=> $materialOrderB;
+                        }
+
+                        // Fallback: natural version-like sort by prefix
                         $prefixA = $a->prefix ?? '';
                         $prefixB = $b->prefix ?? '';
-                        
-                        // Handle empty prefixes - put them at the end
-                        if (empty($prefixA) && empty($prefixB)) {
+
+                        if ($prefixA === '' && $prefixB === '') {
                             return 0;
                         }
-                        if (empty($prefixA)) {
+                        if ($prefixA === '') {
                             return 1;
                         }
-                        if (empty($prefixB)) {
+                        if ($prefixB === '') {
                             return -1;
                         }
-                        
-                        // Use version_compare for natural sorting of version-like strings
-                        // This will properly sort 1.1, 1.2, 1.12, etc.
+
                         return version_compare($prefixA, $prefixB);
                     });
                 }

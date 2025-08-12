@@ -78,7 +78,8 @@ class Lesson extends Model
     public $hasOne = [];
     public $hasMany = [
         'materials' => [
-            'Pensoft\Courses\Models\Material'
+            'Pensoft\\Courses\\Models\\Material',
+            'order' => 'sort_order asc'
         ]
     ];
     public $belongsTo = [

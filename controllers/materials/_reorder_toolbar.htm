@@ -1,0 +1,9 @@
+<?php
+$lessonId = $this->params[0] ?? null;
+?>
+<div data-control="toolbar">
+    <a href="<?= Backend::url('pensoft/courses/lessons/update/'.($lessonId ?: '')) ?>" class="btn btn-primary oc-icon-caret-left">
+        <?= e(trans('backend::lang.form.return_to_list')) ?>
+    </a>
+</div>
+

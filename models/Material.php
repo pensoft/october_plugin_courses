@@ -403,4 +403,28 @@ class Material extends Model
     {
         return $this->cover ? $this->cover->getPath() : null;
     }
+
+    /**
+     * Accessor used by reorder UI: shows "prefix — name [Type]"
+     */
+    public function getReorderLabelAttribute()
+    {
+        $parts = [];
+        if (!empty($this->prefix)) {
+            $parts[] = trim($this->prefix);
+        }
+        if (!empty($this->name)) {
+            $parts[] = trim($this->name);
+        }
+
+        $label = implode(' — ', $parts);
+
+        if (!empty($this->type)) {
+            $typeOptions = self::getTypeOptions();
+            $typeLabel = $typeOptions[$this->type] ?? $this->type;
+            $label .= $label ? " [{$typeLabel}]" : $typeLabel;
+        }
+
+        return $label ?: (string) $this->id;
+    }
 }

@@ -1,12 +1,21 @@
 <?php
-// This partial is used to display the materials relation manager
+// Materials relation manager with a Reorder button scoped to the current lesson
+$lessonId = $this->formGetModel()->id ?? null;
+?>
 
-$relationWidget = $this->relationRender('materials');
-
-if (!$relationWidget) {
-    echo "The relation widget failed to load. Please check relation configuration.";
-}
-else {
-    echo $relationWidget;
-}
-?> 
+<div class="layout">
+    <div class="layout-row">
+        <div data-control="toolbar" class="m-b">
+            <?php if ($lessonId): ?>
+                <a
+                    href="<?= Backend::url('pensoft/courses/materials/reorder/'.$lessonId) ?>"
+                    class="btn btn-default oc-icon-list">
+                    <?= e(trans('backend::lang.reorder.default_title')) ?>
+                </a>
+            <?php endif; ?>
+        </div>
+    </div>
+    <div class="layout-row">
+        <?= $this->relationRender('materials') ?>
+    </div>
+</div>
