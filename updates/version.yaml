@@ -40,3 +40,6 @@
 1.0.15:
     - Add introduction field to topics table
     - update_topics_table_3.php
+1.0.16:
+    - Add SlideShare embed URL to materials table
+    - update_materials_table_5.php

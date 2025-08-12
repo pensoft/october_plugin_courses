@@ -67,7 +67,7 @@ class Material extends Model
      */
     protected $fillable = [
         'name', 'slug', 'description', 'type', 'target_audience', 'target_audiences', 'lesson_id', 'language', 'sort_order', 
-        'prefix', 'duration', 'keywords', 'youtube_url', 'quiz', 'video_file', 'document_file',
+        'prefix', 'duration', 'keywords', 'youtube_url', 'slideshare_url', 'quiz', 'video_file', 'document_file',
         'author', 'contact_information', 'copyright', 'link_to_other_materials', 'download_possible',
         'date_of_creation', 'date_of_version', 'date_of_upload'
     ];
@@ -89,6 +89,7 @@ class Material extends Model
         'duration' => 'required', 
         'keywords' => 'required',
         'youtube_url' => 'nullable|url',
+        'slideshare_url' => 'nullable',
         'quiz' => 'nullable',
         'video_file' => 'nullable',
         'document_file' => 'nullable',

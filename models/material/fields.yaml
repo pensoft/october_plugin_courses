@@ -81,6 +81,17 @@ fields:
             action: show
             field: type
             condition: value[video_tour] value[video]
+
+    # SlideShare URL field - shown for presentation type
+    slideshare_url:
+        label: SlideShare URL
+        type: textarea
+        span: full
+        comment: Paste the SlideShare embed URL (from SlideShare "Embed" code)
+        # trigger:
+        #     action: show
+        #     field: type
+        #     condition: value[presentation]
             
     # Video file upload - only shown for video tour and video types  
     video_file:
