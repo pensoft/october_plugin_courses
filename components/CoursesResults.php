@@ -212,7 +212,6 @@ class CoursesResults extends ComponentBase
         // Sort materials within each block with priorities:
         // 1) lesson.sort_order asc
         // 2) material.sort_order asc
-        // 3) fallback to natural version-like sort by prefix
         foreach ($grouped as $topicSlug => &$topic) {
             foreach ($topic['blocks'] as $blockId => &$block) {
                 if (!empty($block['materials'])) {
@@ -234,22 +233,7 @@ class CoursesResults extends ComponentBase
                         if ($materialOrderA !== $materialOrderB) {
                             return $materialOrderA <=> $materialOrderB;
                         }
-
-                        // Fallback: natural version-like sort by prefix
-                        $prefixA = $a->prefix ?? '';
-                        $prefixB = $b->prefix ?? '';
-
-                        if ($prefixA === '' && $prefixB === '') {
-                            return 0;
-                        }
-                        if ($prefixA === '') {
-                            return 1;
-                        }
-                        if ($prefixB === '') {
-                            return -1;
-                        }
-
-                        return version_compare($prefixA, $prefixB);
+                        return 0;
                     });
                 }
             }

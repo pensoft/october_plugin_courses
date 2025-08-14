@@ -16,11 +16,11 @@ use Log;
  */
 class Downloads extends Controller
 {
-    // Configuration constants
-    const MAX_FILES = 100;
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB per file
-    const MAX_TOTAL_SIZE = 100 * 1024 * 1024; // 100MB total
-    const DOWNLOAD_TIMEOUT = 30; // 30 seconds per file
+// Configuration constants
+    const MAX_FILES = 200;
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB per file
+    const MAX_TOTAL_SIZE = 1000 * 1024 * 1024; // 1000MB total
+    const DOWNLOAD_TIMEOUT = 180; // 180 seconds per file
     const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
 
     /**
@@ -70,13 +70,13 @@ class Downloads extends Controller
 
                 foreach ($material['resources'] as $resource) {
                     try {
-                        // Validate resource URL
-                        if (!$this->isValidResourceUrl($resource['url'], $resource['type'])) {
+						// Validate resource URL (supports relative and absolute)
+						if (!$this->isValidResourceUrl($resource['url'], $resource['type'])) {
                             Log::warning("Invalid resource URL, skipping: {$resource['url']}");
                             continue;
                         }
 
-                        $resourceData = $this->downloadResourceSafely($resource['url']);
+						$resourceData = $this->downloadResourceSafely($resource['url']);
                         if ($resourceData !== false) {
                             // Check file size
                             if (strlen($resourceData) > self::MAX_FILE_SIZE) {
@@ -296,29 +296,35 @@ class Downloads extends Controller
     /**
      * Validate if URL is a safe resource URL
      */
-    private function isValidResourceUrl($url, $type)
+		private function isValidResourceUrl($url, $type)
     {
-        // Parse URL
-        $parsed = parse_url($url);
-        if (!$parsed || !isset($parsed['scheme']) || !isset($parsed['host'])) {
-            return false;
-        }
+			// Allow relative URLs (we will resolve them to local filesystem or absolute URLs)
+			if (is_string($url) && strlen($url) > 0 && $url[0] === '/') {
+				return true;
+			}
 
-        // Only allow HTTP/HTTPS
-        if (!in_array($parsed['scheme'], ['http', 'https'])) {
-            return false;
-        }
+			// Parse absolute URL
+			$parsed = parse_url($url);
+			if (!$parsed || !isset($parsed['scheme']) || !isset($parsed['host'])) {
+				return false;
+			}
 
-        // Prevent access to localhost/private IPs (basic check)
-        $host = $parsed['host'];
-        if (in_array($host, ['localhost', '127.0.0.1', '::1']) || 
-            strpos($host, '192.168.') === 0 || 
-            strpos($host, '10.') === 0) {
-            return false;
-        }
+			// Only allow HTTP/HTTPS
+			if (!in_array($parsed['scheme'], ['http', 'https'])) {
+				return false;
+			}
 
-        // URL looks valid - let cURL handle the rest
-        return true;
+			// Prevent access to localhost/private IPs unless it's the current host (allow same-origin)
+			$host = $parsed['host'];
+			$currHost = request()->getHost();
+			$privateOrLocal = in_array($host, ['localhost', '127.0.0.1', '::1']) || 
+				strpos($host, '192.168.') === 0 || 
+				strpos($host, '10.') === 0;
+			if ($privateOrLocal && $host !== $currHost) {
+				return false;
+			}
+
+			return true;
     }
 
     /**
@@ -332,10 +338,64 @@ class Downloads extends Controller
     /**
      * Download resource safely with timeout and size limits
      */
-    private function downloadResourceSafely($url)
+		private function downloadResourceSafely($url)
     {
-        return $this->downloadImageSafely($url); // Reuse existing method
+			// If the URL is relative or points to the current host, try to read from local filesystem first
+			$absoluteUrl = $this->buildAbsoluteUrl($url);
+			$localPath = $this->resolveLocalFilePath($url);
+			if ($localPath && File::exists($localPath)) {
+				try {
+					$size = @filesize($localPath);
+					if ($size !== false && $size > self::MAX_FILE_SIZE) {
+						return false; // too large
+					}
+					return @file_get_contents($localPath);
+				} catch (\Exception $e) {
+					// Fallback to HTTP download
+				}
+			}
+
+			// Fallback: download over HTTP(S)
+			return $this->downloadImageSafely($absoluteUrl);
     }
+
+		/**
+		 * Build absolute URL for relative paths using current request host
+		 */
+		private function buildAbsoluteUrl($url)
+		{
+			if (is_string($url) && strlen($url) > 0 && $url[0] === '/') {
+				$base = request()->getSchemeAndHttpHost();
+				return rtrim($base, '/') . $url;
+			}
+			return $url;
+		}
+
+		/**
+		 * Resolve a web URL (possibly relative) to a local filesystem path if available
+		 */
+		private function resolveLocalFilePath($url)
+		{
+			if (!is_string($url) || strlen($url) === 0) {
+				return null;
+			}
+
+			$path = null;
+			if ($url[0] === '/') {
+				// Relative to web root
+				$path = public_path(ltrim($url, '/'));
+			} else {
+				$parsed = parse_url($url);
+				if ($parsed && isset($parsed['path'])) {
+					$hostMatches = isset($parsed['host']) ? ($parsed['host'] === request()->getHost()) : false;
+					if ($hostMatches) {
+						$path = public_path(ltrim($parsed['path'], '/'));
+					}
+				}
+			}
+
+			return $path;
+		}
 
 
 

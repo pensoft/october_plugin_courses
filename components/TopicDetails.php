@@ -53,8 +53,8 @@ class TopicDetails extends ComponentBase
             return $this->controller->run('404');
         }
         
-        // Sort materials within each block by prefix
-        $this->sortMaterialsByPrefix($this->topic->blocks);
+        // Sort materials within each block by material sort_order
+        $this->sortMaterialsBySortOrder($this->topic->blocks);
         
         // Get next and previous topics for navigation
         $this->nextTopic = Topic::where('id', '>', $this->topic->id)->orderBy('id', 'asc')->first();
@@ -119,8 +119,8 @@ class TopicDetails extends ComponentBase
         
         $blocks = $query->get();
         
-        // Sort materials within each block by prefix
-        $this->sortMaterialsByPrefix($blocks);
+        // Sort materials within each block by material sort_order
+        $this->sortMaterialsBySortOrder($blocks);
         
         return [
             '#blocks-container' => $this->renderPartial('blocks-list', ['blocks' => $blocks])
@@ -128,10 +128,10 @@ class TopicDetails extends ComponentBase
     }
 
     /**
-     * Sort materials within blocks by their prefix using version_compare
-     * This ensures proper ordering like 1.1 > 1.2 > 1.12 instead of alphabetical
+     * Sort materials within blocks by their material sort_order (ascending).
+     * Materials without a positive sort_order are placed at the end.
      */
-    protected function sortMaterialsByPrefix($blocks)
+    protected function sortMaterialsBySortOrder($blocks)
     {
         foreach ($blocks as $block) {
             foreach ($block->lessons as $lesson) {
@@ -139,23 +139,14 @@ class TopicDetails extends ComponentBase
                     $materialsArray = $lesson->materials->all();
                     
                     usort($materialsArray, function($a, $b) {
-                        $prefixA = $a->prefix ?? '';
-                        $prefixB = $b->prefix ?? '';
-                        
-                        // Handle empty prefixes - put them at the end
-                        if (empty($prefixA) && empty($prefixB)) {
+                        $orderA = (int)($a->sort_order ?? 0);
+                        $orderB = (int)($b->sort_order ?? 0);
+                        $orderA = $orderA > 0 ? $orderA : PHP_INT_MAX;
+                        $orderB = $orderB > 0 ? $orderB : PHP_INT_MAX;
+                        if ($orderA === $orderB) {
                             return 0;
                         }
-                        if (empty($prefixA)) {
-                            return 1;
-                        }
-                        if (empty($prefixB)) {
-                            return -1;
-                        }
-                        
-                        // Use version_compare for natural sorting of version-like strings
-                        // This will properly sort 1.1, 1.2, 1.12, etc.
-                        return version_compare($prefixA, $prefixB);
+                        return $orderA <=> $orderB;
                     });
                     
                     // Replace the collection with sorted array

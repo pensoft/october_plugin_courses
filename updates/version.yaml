@@ -45,3 +45,5 @@
     - update_materials_table_5.php
 1.0.17:
     - Add reorder materials functionality
+1.0.18:
+    - Download controller updates
