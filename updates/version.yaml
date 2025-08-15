@@ -47,3 +47,5 @@
     - Add reorder materials functionality
 1.0.18:
     - Download controller updates
+1.0.19:
+    - Material prefix sorting

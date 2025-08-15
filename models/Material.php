@@ -405,6 +405,45 @@ class Material extends Model
     }
 
     /**
+     * Accessor: normalized sort key derived from prefix.
+     * Produces a lexicographically sortable string where numeric
+     * segments are zero-padded and any letter suffix becomes its own
+     * segment. Examples:
+     *  - 1          -> 00001
+     *  - 1.2        -> 00001.00002
+     *  - 1.2A       -> 00001.00002.A
+     *  - 1.12B.3    -> 00001.00012.B.00003
+     */
+    public function getPrefixSortKeyAttribute()
+    {
+        $prefix = strtoupper(trim((string)($this->prefix ?? '')));
+        if ($prefix === '') {
+            return '';
+        }
+
+        // Normalize separators to dots and strip illegal chars (keep digits, letters, dots)
+        $normalized = preg_replace('/[^0-9A-Z\.]+/u', '', str_replace([' ', '-', '_', ','], '.', $prefix));
+        $parts = array_filter(explode('.', $normalized), function($p) { return $p !== ''; });
+
+        $segments = [];
+        foreach ($parts as $part) {
+            if (preg_match('/^(\d+)([A-Z]*)$/', $part, $m)) {
+                $segments[] = str_pad((string)intval($m[1]), 5, '0', STR_PAD_LEFT);
+                if (!empty($m[2])) {
+                    $segments[] = $m[2];
+                }
+            } elseif (ctype_digit($part)) {
+                $segments[] = str_pad((string)intval($part), 5, '0', STR_PAD_LEFT);
+            } else {
+                // Pure letters or unexpected: keep as an alpha segment
+                $segments[] = preg_replace('/[^A-Z]/', '', $part);
+            }
+        }
+
+        return implode('.', array_filter($segments, function($s) { return $s !== ''; }));
+    }
+
+    /**
      * Accessor used by reorder UI: shows "prefix — name [Type]"
      */
     public function getReorderLabelAttribute()

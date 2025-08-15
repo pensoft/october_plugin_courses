@@ -209,31 +209,19 @@ class CoursesResults extends ComponentBase
             $grouped[$topicSlug]['blocks'][$blockId]['materials'][] = $material;
         }
         
-        // Sort materials within each block with priorities:
-        // 1) lesson.sort_order asc
-        // 2) material.sort_order asc
+        // Sort materials within each block by normalized prefix (to match homepage ordering)
         foreach ($grouped as $topicSlug => &$topic) {
             foreach ($topic['blocks'] as $blockId => &$block) {
                 if (!empty($block['materials'])) {
                     usort($block['materials'], function($a, $b) {
-                        $lessonOrderA = isset($a->lesson) && (int)($a->lesson->sort_order ?? 0) > 0
-                            ? (int) $a->lesson->sort_order
-                            : PHP_INT_MAX;
-                        $lessonOrderB = isset($b->lesson) && (int)($b->lesson->sort_order ?? 0) > 0
-                            ? (int) $b->lesson->sort_order
-                            : PHP_INT_MAX;
-
-                        if ($lessonOrderA !== $lessonOrderB) {
-                            return $lessonOrderA <=> $lessonOrderB;
+                        $ka = $a->prefix_sort_key ?? '';
+                        $kb = $b->prefix_sort_key ?? '';
+                        $cmp = strcmp($ka, $kb);
+                        if ($cmp !== 0) {
+                            return $cmp;
                         }
-
-                        $materialOrderA = (int)($a->sort_order ?? 0) > 0 ? (int) $a->sort_order : PHP_INT_MAX;
-                        $materialOrderB = (int)($b->sort_order ?? 0) > 0 ? (int) $b->sort_order : PHP_INT_MAX;
-
-                        if ($materialOrderA !== $materialOrderB) {
-                            return $materialOrderA <=> $materialOrderB;
-                        }
-                        return 0;
+                        // Deterministic fallback by name
+                        return strcmp($a->name ?? '', $b->name ?? '');
                     });
                 }
             }

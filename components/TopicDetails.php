@@ -53,8 +53,8 @@ class TopicDetails extends ComponentBase
             return $this->controller->run('404');
         }
         
-        // Sort materials within each block by material sort_order
-        $this->sortMaterialsBySortOrder($this->topic->blocks);
+        // Sort materials within each block by normalized prefix (consistent site-wide)
+        $this->sortMaterialsByPrefix($this->topic->blocks);
         
         // Get next and previous topics for navigation
         $this->nextTopic = Topic::where('id', '>', $this->topic->id)->orderBy('id', 'asc')->first();
@@ -119,8 +119,8 @@ class TopicDetails extends ComponentBase
         
         $blocks = $query->get();
         
-        // Sort materials within each block by material sort_order
-        $this->sortMaterialsBySortOrder($blocks);
+        // Sort materials within each block by normalized prefix
+        $this->sortMaterialsByPrefix($blocks);
         
         return [
             '#blocks-container' => $this->renderPartial('blocks-list', ['blocks' => $blocks])
@@ -128,27 +128,27 @@ class TopicDetails extends ComponentBase
     }
 
     /**
-     * Sort materials within blocks by their material sort_order (ascending).
-     * Materials without a positive sort_order are placed at the end.
+     * Sort materials within blocks by normalized prefix (ascending),
+     * using Material::prefix_sort_key for consistent ordering across the site.
      */
-    protected function sortMaterialsBySortOrder($blocks)
+    protected function sortMaterialsByPrefix($blocks)
     {
         foreach ($blocks as $block) {
             foreach ($block->lessons as $lesson) {
                 if ($lesson->materials && $lesson->materials->count() > 0) {
                     $materialsArray = $lesson->materials->all();
-                    
+
                     usort($materialsArray, function($a, $b) {
-                        $orderA = (int)($a->sort_order ?? 0);
-                        $orderB = (int)($b->sort_order ?? 0);
-                        $orderA = $orderA > 0 ? $orderA : PHP_INT_MAX;
-                        $orderB = $orderB > 0 ? $orderB : PHP_INT_MAX;
-                        if ($orderA === $orderB) {
-                            return 0;
+                        $ka = $a->prefix_sort_key ?? '';
+                        $kb = $b->prefix_sort_key ?? '';
+                        $cmp = strcmp($ka, $kb);
+                        if ($cmp !== 0) {
+                            return $cmp;
                         }
-                        return $orderA <=> $orderB;
+                        // Deterministic fallback: name
+                        return strcmp($a->name ?? '', $b->name ?? '');
                     });
-                    
+
                     // Replace the collection with sorted array
                     $lesson->setRelation('materials', collect($materialsArray));
                 }
