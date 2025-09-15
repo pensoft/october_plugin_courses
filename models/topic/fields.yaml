@@ -9,49 +9,72 @@ tabs:
             span: left
             required: true
             tab: Details
-            
-        language:
-            label: Language
-            span: right
-            type: dropdown
-            emptyOption: -- Select Language --
-            tab: Details
-            
+
         slug:
             label: Slug
-            span: right
+            span: auto
             preset: name
             required: true
+            readOnly: true
+            tab: Details
+
+        cover:
+            label: Cover Image
+            type: fileupload
+            mode: image
+            fileTypes: jpg,jpeg,png,gif,webp
+            span: auto
+            required: true
+            tab: Details
+
+        country:
+            label: Country
+            span: auto
+            type: dropdown
+            emptyOption: -- Select Country --
+            tab: Details
+
+        language:
+            label: Language
+            span: auto
+            type: dropdown
+            emptyOption: -- Select Language --
             tab: Details
 
         institution:
             label: Institution
-            span: right
+            span: auto
             type: dropdown
             emptyOption: -- Select Institution --
             tab: Details
             
         topic_introduction:
             label: Topic Introduction
-            span: right
+            span: auto
             type: richeditor
             tab: Details
             
+        description:
+            label: Description
+            span: full
+            type: textarea
+            tab: Details
 
-        blocks:
-            label: Course Blocks
-            type: partial
-            path: $/pensoft/courses/controllers/topics/_field_blocks.htm
-            tab: Blocks
+    
+        # blocks:
+        #     label: Course Blocks
+        #     type: partial
+        #     path: $/pensoft/courses/controllers/topics/_field_blocks.htm
+        #     tab: Blocks
             
-        lessons:
-            label: Lessons
-            type: partial
-            path: $/pensoft/courses/controllers/topics/_field_lessons.htm
-            tab: Lessons
+        # lessons:
+        #     label: Lessons
+        #     type: partial
+        #     path: $/pensoft/courses/controllers/topics/_field_lessons.htm
+        #     tab: Lessons
             
-        materials:
-            label: Learning Materials
-            type: partial
-            path: $/pensoft/courses/controllers/topics/_field_materials.htm
-            tab: Materials
+        # materials:
+        #     label: Learning Materials
+        #     type: partial
+        #     path: $/pensoft/courses/controllers/topics/_field_materials.htm
+        #     tab: Materials

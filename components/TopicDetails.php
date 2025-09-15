@@ -56,9 +56,19 @@ class TopicDetails extends ComponentBase
         // Sort materials within each block by normalized prefix (consistent site-wide)
         $this->sortMaterialsByPrefix($this->topic->blocks);
         
-        // Get next and previous topics for navigation
+        // Get next and previous topics for infinite navigation
         $this->nextTopic = Topic::where('id', '>', $this->topic->id)->orderBy('id', 'asc')->first();
         $this->prevTopic = Topic::where('id', '<', $this->topic->id)->orderBy('id', 'desc')->first();
+        
+        // If no next topic, wrap to first topic
+        if (!$this->nextTopic) {
+            $this->nextTopic = Topic::orderBy('id', 'asc')->first();
+        }
+        
+        // If no previous topic, wrap to last topic
+        if (!$this->prevTopic) {
+            $this->prevTopic = Topic::orderBy('id', 'desc')->first();
+        }
         
         // Get filter options dynamically
         $this->page['blockLevels'] = Block::getLevelOptions();

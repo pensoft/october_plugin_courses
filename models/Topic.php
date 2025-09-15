@@ -29,7 +29,7 @@ class Topic extends Model
     /**
      * @var array fillable attributes are mass assignable
      */
-    protected $fillable = ['name', 'slug', 'language', 'sort_order', 'institution'];
+    protected $fillable = ['name', 'slug', 'language', 'sort_order', 'institution', 'description', 'country_id'];
 
     /**
      * @var array rules for validation
@@ -39,7 +39,9 @@ class Topic extends Model
         'slug' => 'required|unique:pensoft_courses_topics',
         'language' => 'nullable',
         'sort_order' => 'integer',
-        'institution' => 'nullable'
+        'institution' => 'nullable',
+        'description' => 'nullable',
+        'country_id' => 'nullable|exists:rainlab_location_countries,id'
     ];
 
     /**
@@ -98,6 +100,11 @@ class Topic extends Model
             'Pensoft\Partners\Models\Partners',
             'key' => 'institution',
             'otherKey' => 'id'
+        ],
+        'country' => [
+            'RainLab\Location\Models\Country',
+            'key' => 'country_id',
+            'otherKey' => 'id'
         ]
     ];
 
@@ -109,7 +116,9 @@ class Topic extends Model
 
     public $morphMany = [];
 
-    public $attachOne = [];
+    public $attachOne = [
+        'cover' => 'System\Models\File'
+    ];
 
     public $attachMany = [];
 
@@ -131,6 +140,17 @@ class Topic extends Model
             ->where('type', 1)
             ->orderBy('instituion', 'asc')
             ->lists('instituion', 'id');
+    }
+
+    /**
+     * Returns options for country dropdown
+     */
+    public function getCountryOptions()
+    {
+        return Country::isEnabled()
+            ->orderBy('is_pinned', 'desc')
+            ->orderBy('name', 'asc')
+            ->lists('name', 'id');
     }
 
     /**
