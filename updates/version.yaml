@@ -52,3 +52,5 @@
 1.0.20:
     - Add description and country fields to topics table
     - update_topics_table_4.php
+1.0.21:
+    - Add presentation fields

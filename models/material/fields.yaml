@@ -88,10 +88,10 @@ fields:
         type: textarea
         span: full
         comment: Paste the SlideShare embed URL (from SlideShare "Embed" code)
-        # trigger:
-        #     action: show
-        #     field: type
-        #     condition: value[presentation]
+        trigger:
+            action: show
+            field: type
+            condition: value[presentation]
             
     # Video file upload - only shown for video tour and video types  
     video_file:
@@ -118,7 +118,7 @@ fields:
             field: type
             condition: value[interactive_presentation_h5p] value[evaluation] value[virtual_reality_tour]
     
-    # Document file upload - shown for document types, worksheets, guidelines, etc.
+    # Document file upload - shown for document types, worksheets, guidelines, presentations, etc.
     document_file:
         label: Document/File
         type: fileupload
@@ -129,7 +129,7 @@ fields:
         trigger:
             action: show
             field: type
-            condition: value[document] value[textbook_chapter] value[worksheet] value[guideline] value[standard_of_practice]
+            condition: value[document] value[textbook_chapter] value[worksheet] value[guideline] value[standard_of_practice] value[presentation]
         
     cover:
         label: Cover Image
