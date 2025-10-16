@@ -127,7 +127,10 @@ class CoursesResults extends ComponentBase
             
             // Group materials by topic and blocks
             $groupedResults = $this->groupMaterialsByTopicAndBlocks($results);
-            
+
+            // Group blocks by language within each topic
+            $groupedResults = $this->groupBlocksByLanguageWithinTopics($groupedResults);
+
             $this->page['results'] = $results;
             $this->page['groupedResults'] = $groupedResults;
             
@@ -185,6 +188,7 @@ class CoursesResults extends ComponentBase
                 $block = $material->lesson->block;
                 $blockName = $block->name ?? 'Unknown Block';
                 $blockId = $block->id ?? 'unknown';
+                $blockLanguage = $block->language ?? null;
             }
             
             // Initialize topic if not exists
@@ -201,6 +205,7 @@ class CoursesResults extends ComponentBase
                 $grouped[$topicSlug]['blocks'][$blockId] = [
                     'name' => $blockName,
                     'id' => $blockId,
+                    'language' => $blockLanguage,
                     'materials' => []
                 ];
             }
@@ -228,6 +233,57 @@ class CoursesResults extends ComponentBase
         }
         
         return $grouped;
+    }
+
+    /**
+     * Group blocks by language within each topic
+     * Maintains topic → language → blocks → materials hierarchy
+     * Blocks are reordered so same-language blocks appear together
+     *
+     * @param array $groupedResults
+     * @return array
+     */
+    protected function groupBlocksByLanguageWithinTopics($groupedResults)
+    {
+        $regrouped = [];
+
+        foreach ($groupedResults as $topicSlug => $topic) {
+            // Initialize topic structure
+            $regrouped[$topicSlug] = [
+                'name' => $topic['name'],
+                'slug' => $topic['slug'],
+                'blocks' => []
+            ];
+
+            // Group blocks by language
+            $blocksByLanguage = [];
+            foreach ($topic['blocks'] as $blockId => $block) {
+                $language = $block['language'];
+
+                // Handle blocks without language - sort to end
+                if (empty($language)) {
+                    $language = 'ZZZ_Unspecified';
+                }
+
+                if (!isset($blocksByLanguage[$language])) {
+                    $blocksByLanguage[$language] = [];
+                }
+
+                $blocksByLanguage[$language][$blockId] = $block;
+            }
+
+            // Sort languages alphabetically
+            ksort($blocksByLanguage);
+
+            // Flatten back to blocks array - now ordered by language
+            foreach ($blocksByLanguage as $language => $blocks) {
+                foreach ($blocks as $blockId => $block) {
+                    $regrouped[$topicSlug]['blocks'][$blockId] = $block;
+                }
+            }
+        }
+
+        return $regrouped;
     }
 
     public function onApplyFilters()
