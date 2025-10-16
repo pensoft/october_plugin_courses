@@ -52,7 +52,13 @@ class TopicDetails extends ComponentBase
         if (!$this->topic) {
             return $this->controller->run('404');
         }
-        
+
+        // Group blocks by language, then flatten back to collection
+        $groupedBlocks = $this->groupAndFlattenBlocks($this->topic->blocks);
+
+        // Use setRelation to properly maintain the Eloquent relationship
+        $this->topic->setRelation('blocks', $groupedBlocks);
+
         // Sort materials within each block by normalized prefix (consistent site-wide)
         $this->sortMaterialsByPrefix($this->topic->blocks);
         
@@ -128,10 +134,13 @@ class TopicDetails extends ComponentBase
         }
         
         $blocks = $query->get();
-        
+
+        // Group filtered blocks by language, then flatten
+        $blocks = $this->groupAndFlattenBlocks($blocks);
+
         // Sort materials within each block by normalized prefix
         $this->sortMaterialsByPrefix($blocks);
-        
+
         return [
             '#blocks-container' => $this->renderPartial('blocks-list', ['blocks' => $blocks])
         ];
@@ -164,5 +173,57 @@ class TopicDetails extends ComponentBase
                 }
             }
         }
+    }
+
+    /**
+     * Group blocks by language, sort alphabetically, then flatten back to sequential collection
+     * Blocks without language go to end under "ZZZ_Unspecified"
+     * Maintains sort_order within each language group
+     *
+     * @param Collection $blocks
+     * @return Collection
+     */
+    protected function groupAndFlattenBlocks($blocks)
+    {
+        // Convert to array for manipulation
+        $blocksArray = $blocks->all();
+
+        // Group by language
+        $grouped = [];
+        foreach ($blocksArray as $block) {
+            $language = $block->language;
+
+            // Handle missing language - sort to end
+            if (empty($language)) {
+                $language = 'ZZZ_Unspecified';
+            }
+
+            if (!isset($grouped[$language])) {
+                $grouped[$language] = [];
+            }
+
+            $grouped[$language][] = $block;
+        }
+
+        // Sort languages alphabetically
+        ksort($grouped);
+
+        // Sort blocks within each language group by sort_order
+        foreach ($grouped as $language => $languageBlocks) {
+            usort($grouped[$language], function($a, $b) {
+                return $a->sort_order <=> $b->sort_order;
+            });
+        }
+
+        // Flatten back to single array
+        $flattenedBlocks = [];
+        foreach ($grouped as $language => $languageBlocks) {
+            foreach ($languageBlocks as $block) {
+                $flattenedBlocks[] = $block;
+            }
+        }
+
+        // Return as collection
+        return collect($flattenedBlocks);
     }
 } 
