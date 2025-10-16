@@ -22,7 +22,14 @@ fields:
         type: dropdown
         options: getLevelOptions
         emptyOption: -- Select Level --
-        
+
+    language:
+        label: Language
+        span: left
+        type: dropdown
+        options: getLanguageOptions
+        emptyOption: -- Select Language --
+
     slug:
         label: Slug
         span: right

@@ -33,7 +33,7 @@ class Block extends Model
     /**
      * @var array fillable attributes are mass assignable
      */
-    protected $fillable = ['name', 'slug', 'topic_id', 'sort_order', 'level'];
+    protected $fillable = ['name', 'slug', 'topic_id', 'sort_order', 'level', 'language'];
 
     /**
      * @var array rules for validation
@@ -109,6 +109,14 @@ class Block extends Model
             self::LEVEL_BASIC => 'Basic',
             self::LEVEL_ADVANCED => 'Advanced'
         ];
+    }
+
+    /**
+     * Get language options for dropdown
+     */
+    public function getLanguageOptions()
+    {
+        return Language::getLanguageOptionsForDropdown();
     }
 
     /**

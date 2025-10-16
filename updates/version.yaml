@@ -54,3 +54,6 @@
     - update_topics_table_4.php
 1.0.21:
     - Add presentation fields
+1.0.22:
+    - Add language field to blocks table
+    - update_blocks_table.php
