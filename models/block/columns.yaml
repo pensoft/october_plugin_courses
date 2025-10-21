@@ -15,7 +15,15 @@ columns:
     slug:
         label: Slug
         searchable: true
-        
+
+    level:
+        label: Level
+        searchable: true
+
+    language:
+        label: Language
+        searchable: true
+
     topic:
         label: Topic
         relation: topic
