@@ -178,7 +178,7 @@ class TopicDetails extends ComponentBase
     /**
      * Group blocks by language, sort alphabetically, then flatten back to sequential collection
      * Blocks without language go to end under "ZZZ_Unspecified"
-     * Maintains sort_order within each language group
+     * Sorts by block_number within each language group (with natural sorting for version-like numbers)
      *
      * @param Collection $blocks
      * @return Collection
@@ -208,10 +208,22 @@ class TopicDetails extends ComponentBase
         // Sort languages alphabetically
         ksort($grouped);
 
-        // Sort blocks within each language group by sort_order
+        // Sort blocks within each language group by block_number (natural sorting)
         foreach ($grouped as $language => $languageBlocks) {
             usort($grouped[$language], function($a, $b) {
-                return $a->sort_order <=> $b->sort_order;
+                // Get block numbers, treating empty as "ZZZ" to sort to end
+                $numA = !empty($a->block_number) ? $a->block_number : 'ZZZ';
+                $numB = !empty($b->block_number) ? $b->block_number : 'ZZZ';
+                
+                // Use natural comparison for version-like strings (1.1, 1.2, 2.10)
+                $result = strnatcmp($numA, $numB);
+                
+                // Fallback to sort_order if block numbers are equal
+                if ($result === 0) {
+                    return $a->sort_order <=> $b->sort_order;
+                }
+                
+                return $result;
             });
         }
 

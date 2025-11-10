@@ -15,24 +15,31 @@ fields:
         label: Name
         span: left
         required: true
+
+    block_number:
+        label: Block Number
+        span: right
+        type: text
+        placeholder: 'e.g., 1.1, 1.2, 1.3'
+        comment: 'Hierarchical numbering for this block (e.g., 1.1, 1.2, 1.3)'
         
     level:
         label: Level
-        span: right
+        span: left
         type: dropdown
         options: getLevelOptions
         emptyOption: -- Select Level --
 
     language:
         label: Language
-        span: left
+        span: right
         type: dropdown
         options: getLanguageOptions
         emptyOption: -- Select Language --
 
     slug:
         label: Slug
-        span: right
+        span: left
         preset: name
         required: true
         

@@ -189,6 +189,7 @@ class CoursesResults extends ComponentBase
                 $blockName = $block->name ?? 'Unknown Block';
                 $blockId = $block->id ?? 'unknown';
                 $blockLanguage = $block->language ?? null;
+                $blockNumber = $block->block_number ?? null;
             }
             
             // Initialize topic if not exists
@@ -206,6 +207,7 @@ class CoursesResults extends ComponentBase
                     'name' => $blockName,
                     'id' => $blockId,
                     'language' => $blockLanguage,
+                    'block_number' => $blockNumber,
                     'materials' => []
                 ];
             }
@@ -239,6 +241,7 @@ class CoursesResults extends ComponentBase
      * Group blocks by language within each topic
      * Maintains topic → language → blocks → materials hierarchy
      * Blocks are reordered so same-language blocks appear together
+     * Sorts by block_number within each language group (with natural sorting for version-like numbers)
      *
      * @param array $groupedResults
      * @return array
@@ -275,7 +278,21 @@ class CoursesResults extends ComponentBase
             // Sort languages alphabetically
             ksort($blocksByLanguage);
 
-            // Flatten back to blocks array - now ordered by language
+            // Sort blocks within each language group by block_number (natural sorting)
+            foreach ($blocksByLanguage as $language => $blocks) {
+                uasort($blocks, function($a, $b) {
+                    // Get block numbers, treating empty as "ZZZ" to sort to end
+                    $numA = !empty($a['block_number']) ? $a['block_number'] : 'ZZZ';
+                    $numB = !empty($b['block_number']) ? $b['block_number'] : 'ZZZ';
+                    
+                    // Use natural comparison for version-like strings (1.1, 1.2, 2.10)
+                    return strnatcmp($numA, $numB);
+                });
+                
+                $blocksByLanguage[$language] = $blocks;
+            }
+
+            // Flatten back to blocks array - now ordered by language then block_number
             foreach ($blocksByLanguage as $language => $blocks) {
                 foreach ($blocks as $blockId => $block) {
                     $regrouped[$topicSlug]['blocks'][$blockId] = $block;

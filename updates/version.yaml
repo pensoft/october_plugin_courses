@@ -57,3 +57,6 @@
 1.0.22:
     - Add language field to blocks table
     - update_blocks_table.php
+1.0.23:
+    - Add block_number field to blocks table
+    - update_blocks_table_2.php

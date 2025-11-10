@@ -11,6 +11,11 @@ columns:
         label: Name
         searchable: true
         clickable: true
+
+    block_number:
+        label: Block Number
+        searchable: true
+        sortable: true
         
     slug:
         label: Slug
